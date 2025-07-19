@@ -104,14 +104,26 @@ export const Chat = () => {
           </div>
         </div>
         <div className="flex items-center gap-4">
-          <Phone className="size-6 text-neutral-500 dark:text-neutral-300 hover:text-blue-600" />
-          <Video className="size-6 text-neutral-500 dark:text-neutral-300 hover:text-blue-600" />
-          <User2
-            className={`size-5 text-neutral-500 dark:text-neutral-300 hover:text-blue-600 ${
-              isProfileShown ? "text-blue-600 dark:text-blue-400" : ""
+          <div className="size-8 rounded-full flex items-center justify-center hover:bg-white/50 dark:hover:bg-neutral-900 transition-all">
+            <Phone className="size-5 text-neutral-500 dark:text-neutral-300 hover:text-blue-600" />
+          </div>
+          <div className="size-8 rounded-full flex items-center justify-center hover:bg-white/50 dark:hover:bg-neutral-900 transition-all">
+            <Video className="size-5 text-neutral-500 dark:text-neutral-300 hover:text-blue-600" />
+          </div>
+          <div
+            className={`size-8 rounded-full flex items-center justify-center transition-all ${
+              isProfileShown
+                ? "bg-blue-600/50 dark:bg-neutral-900"
+                : "hover:bg-white/50 dark:hover:bg-neutral-900 "
             }`}
-            onClick={() => setIsProfileShown(!isProfileShown)}
-          />
+          >
+            <User2
+              className={`size-5 text-neutral-500 dark:text-neutral-300  ${
+                isProfileShown ? "text-white" : "hover:text-blue-600"
+              }`}
+              onClick={() => setIsProfileShown(!isProfileShown)}
+            />
+          </div>
         </div>
       </div>
       <div className="flex-1 flex ">
