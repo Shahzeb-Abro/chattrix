@@ -11,6 +11,8 @@ socket.on("connect", () => {
   console.log("✅ Connected to Socket.IO server");
 });
 
+socket.emit("setup", localStorage.getItem("senderId"));
+
 socket.on("disconnect", () => {
   console.log("❌ Disconnected from Socket.IO server");
 });
