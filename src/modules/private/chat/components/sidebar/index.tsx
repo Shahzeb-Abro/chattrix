@@ -2,13 +2,29 @@ import { Settings } from "lucide-react";
 
 import { useQuery } from "@tanstack/react-query";
 import { getAllUsers } from "@/api/user";
-import { useEffect } from "react";
 import ROUTES from "@/constants/routes";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { avatarJohn } from "@/constants/images";
 
+interface IUser {
+  _id: string;
+  name: string;
+  lastMessage: {
+    content: string;
+    createdAt: string;
+  };
+  imgUrl: string;
+}
+
+interface IChat {
+  id: string;
+  name: string;
+  lastMessage: string;
+  lastMessageTime: string;
+  imgUrl: string;
+}
+
 export const Sidebar = () => {
-  const navigate = useNavigate();
   const { data } = useQuery({
     queryKey: ["users"],
     queryFn: getAllUsers,
@@ -17,7 +33,7 @@ export const Sidebar = () => {
 
   const users = data?.data;
 
-  const formattedUsers = users?.map((user: any) => ({
+  const formattedUsers = users?.map((user: IUser) => ({
     id: user._id,
     name: user.name,
     lastMessage: user?.lastMessage?.content,
@@ -56,7 +72,7 @@ export const Sidebar = () => {
 
       {/* Chats Overview  */}
       <div className="flex flex-col gap-1 flex-1 overflow-y-auto px-5">
-        {formattedUsers?.map((chat: any) => (
+        {formattedUsers?.map((chat: IChat) => (
           <Link
             to={ROUTES.CHAT(chat.id)}
             key={chat.id}
@@ -67,7 +83,7 @@ export const Sidebar = () => {
             <div className="flex-shrink-0">
               {chat.imgUrl ? (
                 <img
-                  src={chat.avatar}
+                  src={chat.imgUrl}
                   alt="Avatar"
                   className="size-10 rounded-full"
                 />
