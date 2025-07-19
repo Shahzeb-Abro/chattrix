@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Header, Message, Profile, SendMessageInput } from "./components";
 import { getMyMessages } from "@/api/messages";
 import { useQuery } from "@tanstack/react-query";
@@ -77,13 +77,14 @@ export const Chat = () => {
   const [isProfileShown, setIsProfileShown] = useState<boolean>(true);
   const [messages, setMessages] = useState<IMessage[]>([]);
 
-  useState<HTMLAudioElement | null>(null);
   const { data } = useQuery({
     queryKey: ["messages"],
     queryFn: () => getMyMessages(localStorage.getItem("receiverId") || ""),
     refetchInterval: 600000,
     refetchOnWindowFocus: false,
   });
+
+  const bottomRef = useRef<HTMLDivElement | null>(null);
 
   const msgs = data?.messages;
 
@@ -148,6 +149,10 @@ export const Chat = () => {
     }
   }, [msgs]);
 
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
   return (
     <div className="w-full h-dvh relative bg-surface flex flex-col">
       {/* Header  */}
@@ -166,6 +171,7 @@ export const Chat = () => {
             {messages?.map((message: IMessage) => (
               <Message key={message.id} {...message} />
             ))}
+            <div ref={bottomRef} />
           </div>
 
           {/* Send Message Input  */}
