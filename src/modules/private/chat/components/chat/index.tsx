@@ -14,6 +14,7 @@ import {
   Trash,
   Forward,
   User2,
+  Delete,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -206,7 +207,7 @@ const MessagePopover = (message: Message) => {
 
           <div
             role="button"
-            className=" text-red-600 flex items-center gap-2 justify-between p-2 hover:bg-neutral-100 dark:hover:bg-neutral-800 ztransition-all rounded-md"
+            className=" text-red-600 dark:text-red-400 flex items-center gap-2 justify-between p-2 hover:bg-red-600/10  transition-all rounded-md"
           >
             <span className="text-preset-7 font-medium">Delete</span>
             <Trash className="size-4" />
@@ -278,7 +279,7 @@ const ProfilePopover = () => {
             className=" text-primary-text flex items-center gap-2 justify-between p-2 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-all rounded-md"
           >
             <span className="text-preset-7 font-medium">Remove Friend</span>
-            <Copy className="size-4" />
+            <Delete className="size-4" />
           </div>
           <div
             role="button"
@@ -290,7 +291,7 @@ const ProfilePopover = () => {
 
           <div
             role="button"
-            className=" text-red-600 flex items-center gap-2 justify-between p-2 hover:bg-neutral-100 dark:hover:bg-neutral-800 ztransition-all rounded-md"
+            className=" text-red-600 dark:text-red-400 flex items-center gap-2 justify-between p-2 hover:bg-red-600/10  transition-all rounded-md"
           >
             <span className="text-preset-7 font-medium">Delete Chat</span>
             <Trash className="size-4" />
