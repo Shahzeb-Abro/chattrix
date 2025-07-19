@@ -17,6 +17,7 @@ import {
   Delete,
 } from "lucide-react";
 import { useState } from "react";
+import { DeleteChatModal } from "@/modals";
 
 interface Message {
   id: number;
@@ -301,13 +302,7 @@ const ProfilePopover = () => {
             <Forward className="size-4" />
           </div>
 
-          <div
-            role="button"
-            className=" text-red-600 dark:text-red-400 flex items-center gap-2 justify-between p-2 hover:bg-red-600/10  transition-all rounded-md"
-          >
-            <span className="text-preset-7 font-medium">Delete Chat</span>
-            <Trash className="size-4" />
-          </div>
+          <DeleteChatModal />
         </div>
       </PopoverContent>
     </Popover>
