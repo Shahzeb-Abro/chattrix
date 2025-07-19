@@ -2,7 +2,7 @@
 import { io } from "socket.io-client";
 
 // Use your VPS domain or IP
-const socket = io("http://localhost:3017", {
+const socket = io(import.meta.env.VITE_BACKEND_URL, {
   withCredentials: true,
   transports: ["websocket"], // Optional: forces WebSocket
 });
