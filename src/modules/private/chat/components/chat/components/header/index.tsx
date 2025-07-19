@@ -4,9 +4,11 @@ import { Phone, User2, Video } from "lucide-react";
 export const Header = ({
   isProfileShown,
   setIsProfileShown,
+  isTyping,
 }: {
   isProfileShown: boolean;
   setIsProfileShown: (isProfileShown: boolean) => void;
+  isTyping: boolean;
 }) => {
   return (
     <div className=" border-b border-neutral-200 dark:border-neutral-800 p-3 px-6 flex justify-between items-center">
@@ -23,7 +25,7 @@ export const Header = ({
             Jenny
           </div>
           <div className="text-preset-8 font-medium text-blue-600 dark:text-blue-400">
-            Online
+            {isTyping ? "Typing..." : "Online"}
           </div>
         </div>
       </div>

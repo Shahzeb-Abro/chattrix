@@ -3,12 +3,16 @@ export const Button = ({
   label = "",
   className,
   isLoading = false,
+  type = "button",
+  disabled = false,
   ...props
 }: {
   variant?: "primary" | "secondary" | "danger";
   label?: string;
   className?: string;
   isLoading?: boolean;
+  type?: "button" | "submit" | "reset";
+  disabled?: boolean;
 }) => {
   const variants = {
     primary:
@@ -24,7 +28,8 @@ export const Button = ({
       className={`${variants[variant]} ${className} ${
         isLoading ? "cursor-not-allowed !h-[45px]" : ""
       }`}
-      disabled={isLoading}
+      disabled={isLoading || disabled}
+      type={type}
       {...props}
     >
       {isLoading ? (

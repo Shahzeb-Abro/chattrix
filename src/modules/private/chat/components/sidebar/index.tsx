@@ -1,51 +1,42 @@
 import { Settings } from "lucide-react";
-import {
-  avatarJenny,
-  avatarJohn,
-  avatarWilliam,
-} from "../../../../../constants/images";
 
-type Chat = {
-  id: number;
-  name: string;
-  lastMessage: string;
-  lastMessageTime: string;
-  unreadMessages: number;
-  avatar: string;
-  active: boolean;
-};
-
-const CHATS: Chat[] = [
-  {
-    id: 1,
-    avatar: avatarJohn,
-    name: "John Doe",
-    lastMessage: "Hello, hows it going?",
-    lastMessageTime: "12:00",
-    unreadMessages: 1,
-    active: false,
-  },
-  {
-    id: 2,
-    avatar: avatarJenny,
-    name: "Jenny ",
-    lastMessage: "Hello, how are you?",
-    lastMessageTime: "12:00",
-    unreadMessages: 9,
-    active: true,
-  },
-  {
-    id: 2,
-    avatar: avatarWilliam,
-    name: "William",
-    lastMessage: "Hope u r well, I wanted to ask something",
-    lastMessageTime: "12:00",
-    unreadMessages: 3,
-    active: false,
-  },
-];
+import { useQuery } from "@tanstack/react-query";
+import { getAllUsers } from "@/api/user";
+import { useEffect } from "react";
+import ROUTES from "@/constants/routes";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import { avatarJohn } from "@/constants/images";
 
 export const Sidebar = () => {
+  const navigate = useNavigate();
+  const { data } = useQuery({
+    queryKey: ["users"],
+    queryFn: getAllUsers,
+  });
+  const { id } = useParams();
+
+  const users = data?.data;
+
+  const formattedUsers = users?.map((user: any) => ({
+    id: user._id,
+    name: user.name,
+    lastMessage: user?.lastMessage?.content,
+    lastMessageTime: new Date(user?.lastMessage?.createdAt).toLocaleTimeString(
+      "en-US",
+      {
+        hour: "2-digit",
+        minute: "2-digit",
+      }
+    ),
+  }));
+
+  // useEffect(() => {
+  //   if (formattedUsers && formattedUsers.length ==) {
+  //     navigate(ROUTES.CHAT(formattedUsers[0].id));
+  //   }
+  // }, [formattedUsers]);
+
+  console.log("Formatted User", formattedUsers);
   return (
     <div className="max-w-[300px]   hidden w-full h-full bg-surface md:flex flex-col gap-5 border-r border-neutral-200  dark:border-neutral-800">
       {/* Logo and Filters  */}
@@ -65,19 +56,26 @@ export const Sidebar = () => {
 
       {/* Chats Overview  */}
       <div className="flex flex-col gap-1 flex-1 overflow-y-auto px-5">
-        {CHATS.map((chat) => (
-          <div
+        {formattedUsers?.map((chat: any) => (
+          <Link
+            to={ROUTES.CHAT(chat.id)}
             key={chat.id}
             className={`${
-              chat.active && "bg-neutral-0 dark:bg-neutral-900"
+              chat.id === id && "bg-neutral-0 dark:bg-neutral-900"
             } flex items-center gap-3 p-2 rounded-lg`}
           >
             <div className="flex-shrink-0">
-              <img
-                src={chat.avatar}
-                alt="Avatar"
-                className="size-10 rounded-full"
-              />
+              {chat.imgUrl ? (
+                <img
+                  src={chat.avatar}
+                  alt="Avatar"
+                  className="size-10 rounded-full"
+                />
+              ) : (
+                <div className="size-10 flex items-center justify-center rounded-full bg-neutral-200 dark:bg-neutral-800">
+                  {chat.name.charAt(0).toUpperCase()}
+                </div>
+              )}
             </div>
             <div className="flex flex-col gap-1 flex-1">
               <div className="text-preset-7 font-semibold text-primary-text">
@@ -89,13 +87,13 @@ export const Sidebar = () => {
             </div>
             <div className="flex flex-col items-end gap-1">
               <div className="text-preset-9 text-tertiary-text">
-                {chat.lastMessageTime}PM
+                {chat.lastMessageTime}
               </div>
-              <div className="text-preset-9 bg-blue-600 text-white rounded-full size-5 flex items-center justify-center">
+              {/* <div className="text-preset-9 bg-blue-600 text-white rounded-full size-5 flex items-center justify-center">
                 {chat.unreadMessages}
-              </div>
+              </div> */}
             </div>
-          </div>
+          </Link>
         ))}
       </div>
 

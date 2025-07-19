@@ -15,9 +15,9 @@ export const Message = (message: Message) => {
         message.sender === "other"
           ? "bg-blue-50/10 dark:bg-neutral-900"
           : "bg-white dark:bg-transparent"
-      } py-5 px-4`}
+      } py-2 px-4`}
     >
-      <div className="max-w-2xl mx-auto flex flex-col gap-3">
+      <div className="max-w-2xl mx-auto flex items-start  gap-3">
         <div className="flex items-center gap-2 justify-between">
           <div className="flex items-center gap-2">
             {message.sender === "other" ? (
@@ -29,16 +29,18 @@ export const Message = (message: Message) => {
                 S
               </div>
             )}
-            <div className="text-preset-9 text-tertiary-text">
-              {message.timestamp}
-            </div>
           </div>
-          <MessagePopover {...message} />
         </div>
 
-        {/* Text  */}
-        <div className="text-preset-7  text-primary-text">
-          {message.content}
+        <div className="flex flex-col gap-1 w-full">
+          <div className="text-preset-9 text-tertiary-text flex items-center justify-between w-full">
+            {message.timestamp}
+            <MessagePopover {...message} />
+          </div>
+          {/* Text  */}
+          <div className="text-preset-7  text-primary-text">
+            {message.content}
+          </div>
         </div>
       </div>
     </div>

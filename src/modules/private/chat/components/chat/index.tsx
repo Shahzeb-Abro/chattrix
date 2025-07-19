@@ -3,6 +3,7 @@ import { Header, Message, Profile, SendMessageInput } from "./components";
 import { getMyMessages } from "@/api/messages";
 import { useQuery } from "@tanstack/react-query";
 import socket from "@/lib/socket";
+import { useParams } from "react-router-dom";
 
 interface IMessage {
   id: string;
@@ -10,61 +11,6 @@ interface IMessage {
   content: string;
   timestamp: string;
 }
-
-// const MESSAGES: Message[] = [
-//   {
-//     id: 1,
-//     sender: "me",
-//     content:
-//       " Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quos.",
-//     timestamp: "09:02 AM",
-//   },
-//   {
-//     id: 2,
-//     sender: "other",
-//     content: `Lorem ipsum dolor sit amet consectetur adipisicing elit. Amet
-//       eveniet delectus ipsum accusantium aperiam magni, quaerat soluta
-//       debitis distinctio perferendis! Nulla, explicabo? Deleniti non
-//       perspiciatis vero at asperiores fuga sint maiores cumque iusto
-//       aliquid praesentium quia voluptates, eos tenetur? Minus minima ad,
-//       voluptas quis laborum est iure eaque eum quam.`,
-//     timestamp: "09:02 AM",
-//   },
-//   {
-//     id: 3,
-//     sender: "me",
-//     content: "Do you think we can make it work?",
-//     timestamp: "09:02 AM",
-//   },
-//   {
-//     id: 4,
-//     sender: "other",
-//     content: "I think so, but I'm not sure.",
-//     timestamp: "09:02 AM",
-//   },
-//   {
-//     id: 5,
-//     sender: "me",
-//     content: `Lorem ipsum dolor sit amet consectetur adipisicing elit. Amet
-//       eveniet delectus ipsum accusantium aperiam magni, quaerat soluta
-//       debitis distinctio perferendis! Nulla, explicabo? Deleniti non
-//       perspiciatis vero at asperiores fuga sint maiores cumque iusto
-//       aliquid praesentium quia voluptates, eos tenetur? Minus minima ad,
-//       voluptas quis laborum est iure eaque eum quam.`,
-//     timestamp: "09:02 AM",
-//   },
-//   {
-//     id: 6,
-//     sender: "other",
-//     content: `Lorem ipsum dolor sit amet consectetur adipisicing elit. Amet
-//       eveniet delectus ipsum accusantium aperiam magni, quaerat soluta
-//       debitis distinctio perferendis! Nulla, explicabo? Deleniti non
-//       perspiciatis vero at asperiores fuga sint maiores cumque iusto
-//       aliquid praesentium quia voluptates, eos tenetur? Minus minima ad,
-//       voluptas quis laborum est iure eaque eum quam.`,
-//     timestamp: "09:02 AM",
-//   },
-// ];
 
 interface MessageAPI {
   _id: string;
@@ -76,17 +22,46 @@ interface MessageAPI {
 export const Chat = () => {
   const [isProfileShown, setIsProfileShown] = useState<boolean>(true);
   const [messages, setMessages] = useState<IMessage[]>([]);
+  const [isTyping, setIsTyping] = useState(false);
+
+  const { id } = useParams();
+
+  const senderId = JSON.parse(localStorage.getItem("user") || "{}")?._id;
+  console.log("Sender Id is", senderId);
 
   const { data } = useQuery({
-    queryKey: ["messages"],
-    queryFn: () => getMyMessages(localStorage.getItem("receiverId") || ""),
+    queryKey: ["messages", id],
+    queryFn: () => getMyMessages(id as string),
     refetchInterval: 600000,
     refetchOnWindowFocus: false,
+    enabled: !!id,
   });
 
   const bottomRef = useRef<HTMLDivElement | null>(null);
 
   const msgs = data?.messages;
+
+  useEffect(() => {
+    const handleTyping = ({ senderId }: { senderId: string }) => {
+      if (senderId === localStorage.getItem("receiverId")) {
+        setIsTyping(true);
+      }
+    };
+
+    const handleStopTyping = ({ senderId }: { senderId: string }) => {
+      if (senderId === localStorage.getItem("receiverId")) {
+        setIsTyping(false);
+      }
+    };
+
+    socket.on("typing", handleTyping);
+    socket.on("stop-typing", handleStopTyping);
+
+    return () => {
+      socket.off("typing", handleTyping);
+      socket.off("stop-typing", handleStopTyping);
+    };
+  }, []);
 
   useEffect(() => {
     const handleNewMessage = (message: {
@@ -97,11 +72,7 @@ export const Chat = () => {
     }) => {
       if (message.senderId !== localStorage.getItem("senderId")) {
         const notificationAudio = new Audio("/sounds/message-notification.mp3");
-        console.log(
-          "I am here now",
-          message.senderId,
-          localStorage.getItem("senderId")
-        );
+
         notificationAudio.currentTime = 0; // rewind to start
 
         notificationAudio.play().catch((err) => {
@@ -159,6 +130,7 @@ export const Chat = () => {
       <Header
         isProfileShown={isProfileShown}
         setIsProfileShown={setIsProfileShown}
+        isTyping={isTyping}
       />
       <div className="flex-1 flex ">
         <div className="flex-1">

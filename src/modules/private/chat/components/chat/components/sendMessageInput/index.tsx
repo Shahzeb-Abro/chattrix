@@ -1,9 +1,26 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Paperclip, Send } from "lucide-react";
 import socket from "@/lib/socket";
 
 export const SendMessageInput = () => {
   const [message, setMessage] = useState("");
+  const typingTimeout = useRef<NodeJS.Timeout | null>(null);
+
+  const handleTyping = () => {
+    socket.emit("typing", {
+      receiverId: localStorage.getItem("receiverId"),
+    });
+
+    if (typingTimeout.current) {
+      clearTimeout(typingTimeout.current);
+    }
+
+    typingTimeout.current = setTimeout(() => {
+      socket.emit("stop-typing", {
+        receiverId: localStorage.getItem("receiverId"),
+      });
+    }, 1000); // 1 sec after user stops typing
+  };
 
   const handleSendMessage = () => {
     if (!message) return;
@@ -18,9 +35,10 @@ export const SendMessageInput = () => {
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
+    if (e.key === "Enter" && e.shiftKey) {
       handleSendMessage();
     }
+    handleTyping();
   };
 
   return (
