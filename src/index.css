@@ -1,0 +1,291 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@font-face {
+  font-family: "Reddit Sans";
+  src: url(./assets/fonts/reddit-sans/RedditSans-Italic-VariableFont_wght.ttf);
+  font-style: italic;
+  font-weight: 100 900;
+}
+
+@font-face {
+  font-family: "Reddit Sans";
+  src: url(./assets/fonts/reddit-sans/RedditSans-VariableFont_wght.ttf);
+  font-style: normal;
+  font-weight: 100 900;
+}
+
+@theme {
+  /* colors  */
+  /* neutrals */
+  --color-neutral-0: #fff;
+  --color-neutral-200: #cbcdd0;
+  --color-neutral-300: #9393b7;
+  --color-neutral-600: #57577b;
+  --color-neutral-700: #3d3d67;
+  --color-neutral-800: #303065;
+  --color-neutral-900: #21214d;
+
+  /* blues  */
+  --color-blue-100: #e0e6fa;
+  --color-blue-200: #c7d3f7;
+  --color-blue-600: #4865db;
+  --color-blue-700: #2a4cd5;
+
+  /* reds  */
+  --color-red-300: #ff9b99;
+  --color-red-700: #e60013;
+
+  /* other colors  */
+  --color-sky-300: #89caff;
+  --color-indigo-200: #b8b1ff;
+  --color-green-300: #89e780;
+  --color-amber-300: #ffc97c;
+
+  /* typography */
+  --text-preset-9: 12px;
+  --text-preset-9--line-height: 110%;
+  --text-preset-9--letter-spacing: 0px;
+
+  --text-preset-8: 13px;
+  --text-preset-8--line-height: 100%;
+  --text-preset-8--letter-spacing: 0px;
+
+  --text-preset-7: 15px;
+  --text-preset-7--line-height: 140%;
+  --text-preset-7--letter-spacing: -0.3px;
+
+  --text-preset-6: 18px;
+  --text-preset-6--line-height: 140%;
+  --text-preset-6--letter-spacing: -0.3px;
+
+  --text-preset-6-i: 18px;
+  --text-preset-6-i--line-height: 130%;
+  --text-preset-6-i--letter-spacing: 0px;
+
+  --text-preset-6-m: 18px;
+  --text-preset-6-m--line-height: 120%;
+  --text-preset-6-m--letter-spacing: 0px;
+
+  --text-preset-5: 20px;
+  --text-preset-5--line-height: 140%;
+  --text-preset-5--letter-spacing: 0px;
+
+  --text-preset-4: 24px;
+  --text-preset-4--line-height: 140%;
+  --text-preset-4--letter-spacing: 0px;
+
+  --text-preset-4-sb: 24px;
+  --text-preset-4-sb--line-height: 140%;
+  --text-preset-4-sb--letter-spacing: 0px;
+
+  --text-preset-3-mobile: 28px;
+  --text-preset-3-mobile--line-height: 130%;
+  --text-preset-3-mobile--letter-spacing: -0.3px;
+
+  --text-preset-3: 32px;
+  --text-preset-3--line-height: 140%;
+  --text-preset-3--letter-spacing: -0.3px;
+
+  --text-preset-2-mobile: 32px;
+  --text-preset-2-mobile--line-height: 120%;
+  --text-preset-2-mobile--letter-spacing: -0.3px;
+
+  --text-preset-2: 40px;
+  --text-preset-2--line-height: 120%;
+  --text-preset-2--letter-spacing: -0.3px;
+
+  --text-preset-1-mobile: 46px;
+  --text-preset-1-mobile--line-height: 120%;
+  --text-preset-1-mobile--letter-spacing: -2px;
+
+  --text-preset-1: 52px;
+  --text-preset-1--line-height: 120%;
+  --text-preset-1--letter-spacing: -2px;
+
+  /* Tokens  */
+
+  --color-primary-text: var(--color-neutral-900);
+  --color-secondary-text: var(--color-neutral-600);
+  --color-tertiary-text: var(--color-neutral-300);
+}
+
+.bg-surface {
+  background-image: linear-gradient(180deg, #f5f5ff 72.99%, #e0e0ff 100%);
+}
+
+html.dark .bg-surface {
+  background-image: linear-gradient(180deg, #101025 72.99%, #10103a 100%);
+}
+
+html.dark {
+  --color-primary-text: var(--color-neutral-0);
+  --color-secondary-text: var(--color-neutral-200);
+  --color-tertiary-text: var(--color-neutral-300);
+}
+
+.shadow-auth {
+  box-shadow: 0px 8px 16px 0px rgba(32, 37, 41, 0.08);
+}
+
+.shadow-popover {
+  box-shadow: 0px 4px 7px 0px rgba(33, 33, 77, 0.16);
+}
+
+.text-preset-6-i {
+  font-style: italic;
+}
+
+.text-preset-6-m {
+  font-weight: 500;
+}
+
+.text-preset-5 {
+  font-weight: 600;
+}
+
+.text-preset-4-sb {
+  font-weight: 600;
+}
+
+.text-preset-3,
+.text-preset-3-mobile,
+.text-preset-2,
+.text-preset-2-mobile,
+.text-preset-1,
+.text-preset-1-mobile {
+  font-weight: 700;
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+/* input:-webkit-autofill:focus, */
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px white inset !important;
+  box-shadow: 0 0 0 1000px transparent inset !important;
+  -webkit-text-fill-color: var(
+    --color-primary-text
+  ) !important; /* Optional: override text color */
+  transition: background-color 9999s ease-in-out 0s;
+}
+
+body {
+  font-family: "Reddit Sans", sans-serif;
+}
+
+/* Universal thin scrollbar styles */
+
+/* Webkit browsers */
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-thumb {
+  border-radius: 8px;
+  background: var(--scrollbar-thumb, #cbcdd0);
+}
+*::-webkit-scrollbar-track {
+  background: var(--scrollbar-track, #f5f5ff);
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb, #cbcdd0)
+    var(--scrollbar-track, #f5f5ff);
+}
+
+/* Light theme scrollbar colors */
+:root {
+  --scrollbar-thumb: #cbcdd0; /* neutral-200 */
+  --scrollbar-track: #f5f5ff; /* bg-surface start */ --radius: 0.625rem; --background: oklch(1 0 0); --foreground: oklch(0.145 0 0); --card: oklch(1 0 0); --card-foreground: oklch(0.145 0 0); --popover: oklch(1 0 0); --popover-foreground: oklch(0.145 0 0); --primary: oklch(0.205 0 0); --primary-foreground: oklch(0.985 0 0); --secondary: oklch(0.97 0 0); --secondary-foreground: oklch(0.205 0 0); --muted: oklch(0.97 0 0); --muted-foreground: oklch(0.556 0 0); --accent: oklch(0.97 0 0); --accent-foreground: oklch(0.205 0 0); --destructive: oklch(0.577 0.245 27.325); --border: oklch(0.922 0 0); --input: oklch(0.922 0 0); --ring: oklch(0.708 0 0); --chart-1: oklch(0.646 0.222 41.116); --chart-2: oklch(0.6 0.118 184.704); --chart-3: oklch(0.398 0.07 227.392); --chart-4: oklch(0.828 0.189 84.429); --chart-5: oklch(0.769 0.188 70.08); --sidebar: oklch(0.985 0 0); --sidebar-foreground: oklch(0.145 0 0); --sidebar-primary: oklch(0.205 0 0); --sidebar-primary-foreground: oklch(0.985 0 0); --sidebar-accent: oklch(0.97 0 0); --sidebar-accent-foreground: oklch(0.205 0 0); --sidebar-border: oklch(0.922 0 0); --sidebar-ring: oklch(0.708 0 0);
+}
+
+/* Dark theme scrollbar colors */
+html.dark {
+  --scrollbar-thumb: #303065; /* neutral-800 */
+  --scrollbar-track: #101025; /* dark bg start */
+}
+/* ---break---  */
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+/* ---break---  */
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+}
+/* ---break---  */
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
