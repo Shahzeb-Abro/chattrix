@@ -7,7 +7,7 @@ import { useParams } from "react-router-dom";
 import { getUserById } from "@/api/user";
 
 interface IMessage {
-  id: string;
+  _id: string;
   sender: "me" | "other";
   content: string;
   timestamp: string;
@@ -21,7 +21,6 @@ interface MessageAPI {
 }
 
 export const Chat = () => {
-  const queryClient = new QueryClient();
   const [isProfileShown, setIsProfileShown] = useState<boolean>(true);
   const [messages, setMessages] = useState<IMessage[]>([]);
   const [isTyping, setIsTyping] = useState(false);
@@ -44,14 +43,9 @@ export const Chat = () => {
     enabled: !!id,
   });
 
-  console.log("receiver id", id);
-  console.log("Data", data);
-
   const bottomRef = useRef<HTMLDivElement | null>(null);
 
   const msgs = data?.messages;
-
-  console.log("Messages", msgs);
 
   useEffect(() => {
     const handleTyping = ({ senderId }: { senderId: string }) => {
@@ -95,7 +89,7 @@ export const Chat = () => {
       setMessages((prev: IMessage[]) => [
         ...prev,
         {
-          id: message._id,
+          _id: message._id,
           content: message.message,
           sender: message.senderId === senderId ? "me" : "other",
           timestamp: new Date(message.createdAt).toLocaleTimeString("en-US", {
@@ -104,6 +98,7 @@ export const Chat = () => {
           }),
         },
       ]);
+      const queryClient = new QueryClient();
 
       queryClient.invalidateQueries({ queryKey: ["users"] });
     };
@@ -113,13 +108,12 @@ export const Chat = () => {
     return () => {
       socket.off("private-message", handleNewMessage);
     };
-  }, [queryClient, id, senderId]);
+  }, [id, senderId]);
 
   useEffect(() => {
     if (msgs) {
-      console.log("Msgs", msgs);
       const formattedMessages = msgs?.map((message: MessageAPI) => ({
-        id: message._id,
+        _id: message._id,
         sender: message.sender === senderId ? "me" : "other",
         content: message.content,
         timestamp: new Date(message.createdAt).toLocaleTimeString("en-US", {
@@ -153,7 +147,7 @@ export const Chat = () => {
             </div>
 
             {messages?.map((message: IMessage) => (
-              <Message key={message.id} {...message} />
+              <Message key={message._id} {...message} />
             ))}
             <div ref={bottomRef} />
           </div>

@@ -29,7 +29,6 @@ export const SignUp = () => {
   const { mutate: registerAccount, isPending } = useMutation({
     mutationFn: registerUser,
     onSuccess: (data) => {
-      console.log("Data", data);
       localStorage.setItem("isAuthenticated", "true");
       localStorage.setItem("user", JSON.stringify(data.data.user));
       navigate(ROUTES.HOME);

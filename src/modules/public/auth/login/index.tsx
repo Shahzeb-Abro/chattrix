@@ -28,7 +28,6 @@ export const Login = () => {
   const { mutate: loginUser, isPending } = useMutation({
     mutationFn: login,
     onSuccess: (data) => {
-      console.log("Data", data);
       localStorage.setItem("isAuthenticated", "true");
       localStorage.setItem("user", JSON.stringify(data.user));
       navigate(ROUTES.CHATS);

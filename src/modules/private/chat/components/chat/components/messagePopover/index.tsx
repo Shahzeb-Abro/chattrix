@@ -4,28 +4,35 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { QueryClient, useMutation } from "@tanstack/react-query";
 import { Copy, Forward, MoreVertical, Trash } from "lucide-react";
 
 interface Message {
-  id: string;
+  _id: string;
   sender: "me" | "other";
   content: string;
   timestamp: string;
 }
 
 export const MessagePopover = (message: Message) => {
-  console.log("message", message);
+  const queryClient = new QueryClient();
 
   const { mutate } = useMutation({
-    mutationFn: () => deleteMessage(message.id),
+    mutationFn: deleteMessage,
     onSuccess: (res) => {
       console.log("res", res);
+      queryClient.invalidateQueries({ queryKey: ["messages"] });
     },
     onError: (err) => {
       console.log("err", err);
     },
   });
+
+  const handleDelete = () => {
+    console.log("message._id", message._id);
+    mutate(message._id as string);
+  };
+
   return (
     <Popover>
       <PopoverTrigger>
@@ -57,6 +64,7 @@ export const MessagePopover = (message: Message) => {
 
           <div
             role="button"
+            onClick={handleDelete}
             className=" text-red-600 dark:text-red-400 flex items-center gap-2 justify-between p-2 hover:bg-red-600/10  transition-all rounded-md"
           >
             <span className="text-preset-7 font-medium">Delete</span>

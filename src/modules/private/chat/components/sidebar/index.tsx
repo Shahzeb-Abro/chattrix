@@ -52,7 +52,6 @@ export const Sidebar = () => {
   //   }
   // }, [formattedUsers]);
 
-  console.log("Formatted User", formattedUsers);
   return (
     <div className="max-w-[300px]   hidden w-full h-full bg-surface md:flex flex-col gap-5 border-r border-neutral-200  dark:border-neutral-800">
       {/* Logo and Filters  */}

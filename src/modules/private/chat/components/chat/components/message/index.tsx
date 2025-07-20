@@ -1,11 +1,10 @@
-import { avatarJenny } from "@/constants/images";
 import { MessagePopover } from "../messagePopover";
 import { useParams } from "react-router-dom";
 import { getUserById } from "@/api/user";
 import { useQuery } from "@tanstack/react-query";
 
 interface Message {
-  id: string;
+  _id: string;
   sender: "me" | "other";
   content: string;
   timestamp: string;
@@ -13,7 +12,6 @@ interface Message {
 
 export const Message = (message: Message) => {
   const { id } = useParams();
-  console.log("message", message);
   const { data } = useQuery({
     queryKey: ["user", id],
     queryFn: () => getUserById(id as string),

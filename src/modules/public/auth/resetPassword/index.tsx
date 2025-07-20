@@ -30,8 +30,7 @@ export const ResetPassword = () => {
 
   const { mutate: resetPasswordMutation, isPending } = useMutation({
     mutationFn: resetPassword,
-    onSuccess: (data) => {
-      console.log("Data", data);
+    onSuccess: () => {
       navigate(ROUTES.LOGIN);
     },
   });
