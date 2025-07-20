@@ -1,8 +1,10 @@
+import { deleteMessage } from "@/api/messages";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { Copy, Forward, MoreVertical, Trash } from "lucide-react";
 
 interface Message {
@@ -13,6 +15,17 @@ interface Message {
 }
 
 export const MessagePopover = (message: Message) => {
+  console.log("message", message);
+
+  const { mutate } = useMutation({
+    mutationFn: () => deleteMessage(message.id),
+    onSuccess: (res) => {
+      console.log("res", res);
+    },
+    onError: (err) => {
+      console.log("err", err);
+    },
+  });
   return (
     <Popover>
       <PopoverTrigger>

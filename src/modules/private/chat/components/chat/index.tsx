@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { Header, Message, Profile, SendMessageInput } from "./components";
 import { getMyMessages } from "@/api/messages";
-import { useQuery } from "@tanstack/react-query";
+import { QueryClient, useQuery } from "@tanstack/react-query";
 import socket from "@/lib/socket";
 import { useParams } from "react-router-dom";
+import { getUserById } from "@/api/user";
 
 interface IMessage {
   id: string;
@@ -20,36 +21,47 @@ interface MessageAPI {
 }
 
 export const Chat = () => {
+  const queryClient = new QueryClient();
   const [isProfileShown, setIsProfileShown] = useState<boolean>(true);
   const [messages, setMessages] = useState<IMessage[]>([]);
   const [isTyping, setIsTyping] = useState(false);
 
   const { id } = useParams();
 
+  const { data: userData } = useQuery({
+    queryKey: ["user", id],
+    queryFn: () => getUserById(id as string),
+    enabled: !!id,
+  });
+
+  const user = userData?.data;
+
   const senderId = JSON.parse(localStorage.getItem("user") || "{}")?._id;
-  console.log("Sender Id is", senderId);
 
   const { data } = useQuery({
     queryKey: ["messages", id],
     queryFn: () => getMyMessages(id as string),
-    refetchInterval: 600000,
-    refetchOnWindowFocus: false,
     enabled: !!id,
   });
+
+  console.log("receiver id", id);
+  console.log("Data", data);
 
   const bottomRef = useRef<HTMLDivElement | null>(null);
 
   const msgs = data?.messages;
 
+  console.log("Messages", msgs);
+
   useEffect(() => {
     const handleTyping = ({ senderId }: { senderId: string }) => {
-      if (senderId === localStorage.getItem("receiverId")) {
+      if (senderId === id) {
         setIsTyping(true);
       }
     };
 
     const handleStopTyping = ({ senderId }: { senderId: string }) => {
-      if (senderId === localStorage.getItem("receiverId")) {
+      if (senderId === id) {
         setIsTyping(false);
       }
     };
@@ -61,7 +73,7 @@ export const Chat = () => {
       socket.off("typing", handleTyping);
       socket.off("stop-typing", handleStopTyping);
     };
-  }, []);
+  }, [id]);
 
   useEffect(() => {
     const handleNewMessage = (message: {
@@ -70,7 +82,7 @@ export const Chat = () => {
       senderId: string;
       createdAt: string;
     }) => {
-      if (message.senderId !== localStorage.getItem("senderId")) {
+      if (message.senderId === id) {
         const notificationAudio = new Audio("/sounds/message-notification.mp3");
 
         notificationAudio.currentTime = 0; // rewind to start
@@ -85,16 +97,15 @@ export const Chat = () => {
         {
           id: message._id,
           content: message.message,
-          sender:
-            message.senderId === localStorage.getItem("senderId")
-              ? "me"
-              : "other",
+          sender: message.senderId === senderId ? "me" : "other",
           timestamp: new Date(message.createdAt).toLocaleTimeString("en-US", {
             hour: "2-digit",
             minute: "2-digit",
           }),
         },
       ]);
+
+      queryClient.invalidateQueries({ queryKey: ["users"] });
     };
 
     socket.on("private-message", handleNewMessage);
@@ -102,14 +113,14 @@ export const Chat = () => {
     return () => {
       socket.off("private-message", handleNewMessage);
     };
-  }, []);
+  }, [queryClient, id, senderId]);
 
   useEffect(() => {
     if (msgs) {
+      console.log("Msgs", msgs);
       const formattedMessages = msgs?.map((message: MessageAPI) => ({
         id: message._id,
-        sender:
-          message.sender === localStorage.getItem("senderId") ? "me" : "other",
+        sender: message.sender === senderId ? "me" : "other",
         content: message.content,
         timestamp: new Date(message.createdAt).toLocaleTimeString("en-US", {
           hour: "2-digit",
@@ -118,7 +129,7 @@ export const Chat = () => {
       }));
       setMessages(formattedMessages);
     }
-  }, [msgs]);
+  }, [msgs, senderId]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -131,6 +142,7 @@ export const Chat = () => {
         isProfileShown={isProfileShown}
         setIsProfileShown={setIsProfileShown}
         isTyping={isTyping}
+        user={user}
       />
       <div className="flex-1 flex ">
         <div className="flex-1">
@@ -151,7 +163,7 @@ export const Chat = () => {
         </div>
 
         {/* Profile  */}
-        {isProfileShown && <Profile />}
+        {isProfileShown && <Profile user={user} />}
       </div>
     </div>
   );

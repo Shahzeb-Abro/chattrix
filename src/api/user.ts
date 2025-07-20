@@ -11,3 +11,15 @@ export const getAllUsers = async () => {
     throw error;
   }
 };
+
+export const getUserById = async (id: string) => {
+  try {
+    const response = await axios.get(`${baseUrl}/${id}`, {
+      withCredentials: true,
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching user:", error);
+    throw error;
+  }
+};

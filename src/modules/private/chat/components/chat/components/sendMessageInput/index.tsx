@@ -1,14 +1,17 @@
 import { useRef, useState } from "react";
 import { Paperclip, Send } from "lucide-react";
 import socket from "@/lib/socket";
+import { useParams } from "react-router-dom";
 
 export const SendMessageInput = () => {
   const [message, setMessage] = useState("");
   const typingTimeout = useRef<NodeJS.Timeout | null>(null);
 
+  const { id } = useParams();
+
   const handleTyping = () => {
     socket.emit("typing", {
-      receiverId: localStorage.getItem("receiverId"),
+      receiverId: id,
     });
 
     if (typingTimeout.current) {
@@ -17,15 +20,15 @@ export const SendMessageInput = () => {
 
     typingTimeout.current = setTimeout(() => {
       socket.emit("stop-typing", {
-        receiverId: localStorage.getItem("receiverId"),
+        receiverId: id,
       });
     }, 1000); // 1 sec after user stops typing
   };
 
   const handleSendMessage = () => {
     if (!message) return;
-    const senderId = localStorage.getItem("senderId");
-    const receiverId = localStorage.getItem("receiverId");
+    const senderId = JSON.parse(localStorage.getItem("user") || "{}")?._id;
+    const receiverId = id;
     socket.emit("private-message", {
       content: message,
       senderId,
@@ -43,7 +46,7 @@ export const SendMessageInput = () => {
 
   return (
     <div className="p-3 px-6  bg-surface border-t border-neutral-200 dark:border-neutral-800  ">
-      <div className="w-full h-12  rounded-lg border border-slate-300 dark:bg-neutral-700  dark:border-neutral-600  bg-white focus:outline-none focus:shadow-sm flex items-center justify-between">
+      <div className="w-full h-12  rounded-lg border border-slate-300 dark:bg-neutral-700  dark:border-neutral-600  bg-slate-100 focus:outline-none focus:shadow-sm flex items-center justify-between">
         <Paperclip className="size-6 text-neutral-500 dark:text-neutral-300 ml-4" />
         <input
           type="text"
