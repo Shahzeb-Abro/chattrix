@@ -5,20 +5,7 @@ import { QueryClient, useQuery } from "@tanstack/react-query";
 import socket from "@/lib/socket";
 import { useParams } from "react-router-dom";
 import { getUserById } from "@/api/user";
-
-interface IMessage {
-  _id: string;
-  sender: "me" | "other";
-  content: string;
-  timestamp: string;
-}
-
-interface MessageAPI {
-  _id: string;
-  sender: string;
-  content: string;
-  createdAt: string;
-}
+import type { IMessage } from "@/types/global";
 
 export const Chat = () => {
   const [isProfileShown, setIsProfileShown] = useState<boolean>(true);
@@ -35,17 +22,41 @@ export const Chat = () => {
 
   const user = userData?.data;
 
-  const senderId = JSON.parse(localStorage.getItem("user") || "{}")?._id;
+  const myId = JSON.parse(localStorage.getItem("user") || "{}")?._id;
+  const me = JSON.parse(localStorage.getItem("user") || "{}");
 
   const { data } = useQuery({
     queryKey: ["messages", id],
     queryFn: () => getMyMessages(id as string),
     enabled: !!id,
+    refetchInterval: 60000,
   });
 
   const bottomRef = useRef<HTMLDivElement | null>(null);
 
   const msgs = data?.messages;
+
+  useEffect(() => {
+    if (msgs) {
+      const formattedMessages = msgs?.map((message: IMessage) => ({
+        _id: message._id,
+        sender: message.sender,
+        content: message.content,
+        createdAt: new Date(message.createdAt).toLocaleTimeString("en-US", {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+        isRead: message.isRead,
+        receiver: {
+          _id: message.receiver._id,
+          name: message.receiver.name,
+          imgUrl: message.receiver.imgUrl,
+        },
+        deliveredAt: message.deliveredAt,
+      }));
+      setMessages(formattedMessages);
+    }
+  }, [msgs]);
 
   useEffect(() => {
     const handleTyping = ({ senderId }: { senderId: string }) => {
@@ -70,13 +81,9 @@ export const Chat = () => {
   }, [id]);
 
   useEffect(() => {
-    const handleNewMessage = (message: {
-      _id: string;
-      message: string;
-      senderId: string;
-      createdAt: string;
-    }) => {
-      if (message.senderId === id) {
+    const handleNewMessage = (message: IMessage) => {
+      console.log("New message", message);
+      if (message.receiver._id == myId) {
         const notificationAudio = new Audio("/sounds/message-notification.mp3");
 
         notificationAudio.currentTime = 0; // rewind to start
@@ -86,21 +93,43 @@ export const Chat = () => {
         });
       }
 
+      const queryClient = new QueryClient();
+
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+
+      // Emit mark-as-read if the message is for the currently open chat
+      console.log("New message for mark as read", message);
+      if (message.sender._id === id && message.receiver._id === myId) {
+        console.log("I sent the message", "am I here?");
+        socket.emit("mark-as-read", {
+          senderId: message.sender._id,
+          receiverId: message.receiver._id,
+        });
+      }
+
       setMessages((prev: IMessage[]) => [
         ...prev,
         {
           _id: message._id,
-          content: message.message,
-          sender: message.senderId === senderId ? "me" : "other",
-          timestamp: new Date(message.createdAt).toLocaleTimeString("en-US", {
+          content: message.content,
+          sender: {
+            _id: message.sender._id,
+            name: message.sender.name,
+            imgUrl: message.sender.imgUrl,
+          },
+          receiver: {
+            _id: message.receiver._id,
+            name: message.receiver.name,
+            imgUrl: message.receiver.imgUrl,
+          },
+          createdAt: new Date(message.createdAt).toLocaleTimeString("en-US", {
             hour: "2-digit",
             minute: "2-digit",
           }),
+          isRead: message.isRead,
+          deliveredAt: message.deliveredAt,
         },
       ]);
-      const queryClient = new QueryClient();
-
-      queryClient.invalidateQueries({ queryKey: ["users"] });
     };
 
     socket.on("private-message", handleNewMessage);
@@ -108,26 +137,39 @@ export const Chat = () => {
     return () => {
       socket.off("private-message", handleNewMessage);
     };
-  }, [id, senderId]);
-
-  useEffect(() => {
-    if (msgs) {
-      const formattedMessages = msgs?.map((message: MessageAPI) => ({
-        _id: message._id,
-        sender: message.sender === senderId ? "me" : "other",
-        content: message.content,
-        timestamp: new Date(message.createdAt).toLocaleTimeString("en-US", {
-          hour: "2-digit",
-          minute: "2-digit",
-        }),
-      }));
-      setMessages(formattedMessages);
-    }
-  }, [msgs, senderId]);
+  }, [id, myId]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  useEffect(() => {
+    if (id) {
+      socket.emit("mark-as-read", {
+        senderId: me._id,
+        receiverId: id,
+      });
+    }
+  }, [id, me._id, messages.length]);
+
+  useEffect(() => {
+    const handleMarkAsRead = () => {
+      setMessages((prevMessages) =>
+        prevMessages.map((msg) => {
+          if (msg.sender._id === me._id && msg.receiver._id === id) {
+            return { ...msg, isRead: true };
+          }
+          return msg;
+        })
+      );
+    };
+
+    socket.on("mark-as-read", handleMarkAsRead);
+
+    return () => {
+      socket.off("mark-as-read", handleMarkAsRead);
+    };
+  }, [me._id, id]);
 
   return (
     <div className="w-full h-dvh relative bg-surface flex flex-col">
@@ -141,13 +183,13 @@ export const Chat = () => {
       <div className="flex-1 flex ">
         <div className="flex-1">
           {/* Messages  */}
-          <div className=" py-2 flex flex-col  flex-1 overflow-y-auto h-[calc(100dvh-65px-73px)]">
+          <div className=" py-2 flex flex-col  flex-1 overflow-y-auto h-[calc(100dvh-65px-73px)] bg-white dark:bg-transparent">
             <div className="text-preset-9 text-tertiary-text text-center my-2">
               Today
             </div>
 
             {messages?.map((message: IMessage) => (
-              <Message key={message._id} {...message} />
+              <Message key={message._id} message={message} />
             ))}
             <div ref={bottomRef} />
           </div>

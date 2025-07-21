@@ -4,17 +4,11 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import type { IMessage } from "@/types/global";
 import { QueryClient, useMutation } from "@tanstack/react-query";
 import { Copy, Forward, MoreVertical, Trash } from "lucide-react";
 
-interface Message {
-  _id: string;
-  sender: "me" | "other";
-  content: string;
-  timestamp: string;
-}
-
-export const MessagePopover = (message: Message) => {
+export const MessagePopover = (message: IMessage) => {
   const queryClient = new QueryClient();
 
   const { mutate } = useMutation({

@@ -1,7 +1,7 @@
 import { AppRouter } from "./routes/AppRouter";
 import socket from "./lib/socket";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+// import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { useEffect } from "react";
 
 const queryClient = new QueryClient(); // ✅ move outside component so it persists
@@ -36,7 +36,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AppRouter />
-      <ReactQueryDevtools initialIsOpen={false} position="top" />
+      {/* <ReactQueryDevtools initialIsOpen={false} position="top" /> */}
     </QueryClientProvider>
   );
 }

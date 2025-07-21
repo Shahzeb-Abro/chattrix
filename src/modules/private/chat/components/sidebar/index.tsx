@@ -5,6 +5,7 @@ import { getAllUsers } from "@/api/user";
 import ROUTES from "@/constants/routes";
 import { Link, useParams } from "react-router-dom";
 import { avatarJohn } from "@/constants/images";
+import { formatShortTime } from "@/lib/dateTime";
 
 interface IUser {
   _id: string;
@@ -12,6 +13,7 @@ interface IUser {
   lastMessage: {
     content: string;
     createdAt: string;
+    sender: string;
   };
   imgUrl: string;
 }
@@ -21,6 +23,7 @@ interface IChat {
   name: string;
   lastMessage: string;
   lastMessageTime: string;
+  sender: string;
   imgUrl: string;
 }
 
@@ -33,24 +36,15 @@ export const Sidebar = () => {
 
   const users = data?.data;
 
+  console.log("Users", users);
+
   const formattedUsers = users?.map((user: IUser) => ({
     id: user._id,
     name: user.name,
     lastMessage: user?.lastMessage?.content,
-    lastMessageTime: new Date(user?.lastMessage?.createdAt).toLocaleTimeString(
-      "en-US",
-      {
-        hour: "2-digit",
-        minute: "2-digit",
-      }
-    ),
+    lastMessageTime: formatShortTime(user?.lastMessage?.createdAt),
+    sender: user?.lastMessage?.sender,
   }));
-
-  // useEffect(() => {
-  //   if (formattedUsers && formattedUsers.length ==) {
-  //     navigate(ROUTES.CHAT(formattedUsers[0].id));
-  //   }
-  // }, [formattedUsers]);
 
   return (
     <div className="max-w-[300px]   hidden w-full h-full bg-surface md:flex flex-col gap-5 border-r border-neutral-200  dark:border-neutral-800">
@@ -97,7 +91,7 @@ export const Sidebar = () => {
                 {chat.name}
               </div>
               <div className="text-preset-8 font-medium text-secondary-text line-clamp-1">
-                {chat.lastMessage}
+                {chat?.sender && chat.sender}: {chat.lastMessage}
               </div>
             </div>
             <div className="flex flex-col items-end gap-1">

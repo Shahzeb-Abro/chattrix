@@ -8,6 +8,7 @@ export const SendMessageInput = () => {
   const typingTimeout = useRef<NodeJS.Timeout | null>(null);
 
   const { id } = useParams();
+  const me = JSON.parse(localStorage.getItem("user") || "{}");
 
   const handleTyping = () => {
     socket.emit("typing", {
@@ -27,12 +28,10 @@ export const SendMessageInput = () => {
 
   const handleSendMessage = () => {
     if (!message) return;
-    const senderId = JSON.parse(localStorage.getItem("user") || "{}")?._id;
-    const receiverId = id;
     socket.emit("private-message", {
       content: message,
-      senderId,
-      receiverId,
+      senderId: me._id,
+      receiverId: id,
     });
     setMessage("");
   };
