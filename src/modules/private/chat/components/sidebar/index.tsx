@@ -1,6 +1,6 @@
 import { Settings } from "lucide-react";
 
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getAllUsers } from "@/api/user";
 import ROUTES from "@/constants/routes";
 import { Link, useParams } from "react-router-dom";
@@ -16,6 +16,7 @@ interface IUser {
     sender: string;
   };
   imgUrl: string;
+  unreadCount: number;
 }
 
 interface IChat {
@@ -25,9 +26,11 @@ interface IChat {
   lastMessageTime: string;
   sender: string;
   imgUrl: string;
+  unreadCount: number;
 }
 
 export const Sidebar = ({ typingUser }: { typingUser: string | null }) => {
+  const queryClient = useQueryClient();
   const { data } = useQuery({
     queryKey: ["users"],
     queryFn: getAllUsers,
@@ -43,8 +46,10 @@ export const Sidebar = ({ typingUser }: { typingUser: string | null }) => {
     lastMessageTime: formatShortTime(user?.lastMessage?.createdAt),
     sender: user?.lastMessage?.sender,
     imgUrl: user?.imgUrl,
+    unreadCount: user?.unreadCount,
   }));
 
+  console.log("formattedUsers", formattedUsers);
   return (
     <div className="max-w-[300px]   hidden w-full h-full bg-surface md:flex flex-col gap-5 border-r border-neutral-200  dark:border-neutral-800">
       {/* Logo and Filters  */}
@@ -68,6 +73,9 @@ export const Sidebar = ({ typingUser }: { typingUser: string | null }) => {
           <Link
             to={ROUTES.CHAT(chat.id)}
             key={chat.id}
+            onClick={() => {
+              queryClient.invalidateQueries({ queryKey: ["users"] });
+            }}
             className={`${
               chat.id === id && "bg-neutral-0 dark:bg-neutral-900"
             } flex items-center gap-3 p-2 rounded-lg`}
@@ -95,7 +103,13 @@ export const Sidebar = ({ typingUser }: { typingUser: string | null }) => {
                     Typing...
                   </span>
                 ) : (
-                  `${chat?.sender && chat.sender}: ${chat.lastMessage}`
+                  <span
+                    className={`${
+                      chat?.unreadCount > 0 && "font-bold"
+                    } text-secondary-text`}
+                  >
+                    {chat?.sender && chat.sender}: {chat.lastMessage}
+                  </span>
                 )}
               </div>
             </div>
@@ -103,9 +117,11 @@ export const Sidebar = ({ typingUser }: { typingUser: string | null }) => {
               <div className="text-preset-9 text-tertiary-text">
                 {chat.lastMessageTime}
               </div>
-              {/* <div className="text-preset-9 bg-blue-600 text-white rounded-full size-5 flex items-center justify-center">
-                {chat.unreadMessages}
-              </div> */}
+              {chat?.unreadCount > 0 && (
+                <div className="text-preset-9 bg-blue-600 text-white rounded-full size-5 flex items-center justify-center">
+                  {chat.unreadCount}
+                </div>
+              )}
             </div>
           </Link>
         ))}

@@ -58,7 +58,6 @@ export const Chat = ({
 
       // Emit mark-as-read if the message is for the currently open chat
       if (message.sender._id === id && message.receiver._id === myId) {
-        console.log("Marking as read on new message");
         socket.emit("mark-as-read", {
           senderId: id,
           receiverId: myId,
@@ -125,10 +124,8 @@ export const Chat = ({
 
   useEffect(() => {
     if (id) {
-      console.log("messages length changed", messages.length);
       socket.on("mark-as-read", ({ receiverId }: { receiverId: string }) => {
         if (receiverId === id) {
-          console.log("mark-as-read", receiverId);
           setMessages((prevMessages) =>
             prevMessages.map((message) => {
               console.log("message", message);
@@ -141,7 +138,7 @@ export const Chat = ({
         }
       });
     }
-  }, [messages.length, id, myId]);
+  }, [messages.length, id, myId, queryClient]);
 
   useEffect(() => {
     socket.on("private-message", handleNewMessage);
