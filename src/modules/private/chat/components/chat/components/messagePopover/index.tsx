@@ -55,10 +55,12 @@ export const MessagePopover = (message: IMessage) => {
             <Forward className="size-4" />
           </div>
 
+          <div className="w-full h-[1px] bg-neutral-200 dark:bg-neutral-800"></div>
+
           <div
             role="button"
             onClick={handleDelete}
-            className=" text-red-600 dark:text-red-400 flex items-center gap-2 justify-between p-2 hover:bg-red-600/10  transition-all rounded-md"
+            className=" text-red-600  dark:text-red-00 flex items-center gap-2 justify-between p-2 hover:bg-red-600/10  transition-all rounded-md"
           >
             <span className="text-preset-7 font-medium">Delete</span>
             <Trash className="size-4" />

@@ -65,36 +65,14 @@ export const Chat = ({
         });
       }
 
-      addMessage({
-        ...message,
-        createdAt: new Date(message.createdAt).toLocaleTimeString("en-US", {
-          hour: "2-digit",
-          minute: "2-digit",
-        }),
-      });
+      addMessage(message);
     },
     [myId, id, queryClient, addMessage]
   );
 
   useEffect(() => {
     if (msgs) {
-      const formattedMessages = msgs?.map((message: IMessage) => ({
-        _id: message._id,
-        sender: message.sender,
-        content: message.content,
-        createdAt: new Date(message.createdAt).toLocaleTimeString("en-US", {
-          hour: "2-digit",
-          minute: "2-digit",
-        }),
-        isRead: message.isRead,
-        receiver: {
-          _id: message.receiver._id,
-          name: message.receiver.name,
-          imgUrl: message.receiver.imgUrl,
-        },
-        deliveredAt: message.deliveredAt,
-      }));
-      setMessages(formattedMessages);
+      setMessages(msgs);
     }
   }, [msgs, setMessages]);
 
@@ -145,12 +123,12 @@ export const Chat = ({
         <div className="flex-1">
           {/* Messages  */}
           <div className=" py-2 flex flex-col  flex-1 overflow-y-auto h-[calc(100dvh-65px-73px)] bg-white dark:bg-transparent">
-            <div className="text-preset-9 text-tertiary-text text-center my-2">
-              Today
-            </div>
-
-            {messages?.map((message: IMessage) => (
-              <Message key={message._id} message={message} />
+            {messages?.map((message: IMessage, index: number) => (
+              <Message
+                key={message._id}
+                message={message}
+                previousMessage={messages[index - 1] || {}}
+              />
             ))}
             <div ref={bottomRef} />
           </div>

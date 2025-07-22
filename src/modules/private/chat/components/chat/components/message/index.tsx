@@ -4,8 +4,15 @@ import { getUserById } from "@/api/user";
 import { useQuery } from "@tanstack/react-query";
 import { CheckCheck } from "lucide-react";
 import type { IMessage } from "@/types/global";
+import { differenceInMinutes, format } from "date-fns";
 
-export const Message = ({ message }: { message: IMessage }) => {
+export const Message = ({
+  message,
+  previousMessage,
+}: {
+  message: IMessage;
+  previousMessage: IMessage;
+}) => {
   const { id } = useParams();
   const { data } = useQuery({
     queryKey: ["user", id],
@@ -16,79 +23,132 @@ export const Message = ({ message }: { message: IMessage }) => {
   const user = data?.data;
   const me = JSON.parse(localStorage.getItem("user") || "{}");
 
-  // ${
-  //   message.sender._id === me._id
-  //     ? "bg-blue-50/30 dark:bg-neutral-900"
-  //     : "bg-white dark:bg-transparent"
-  // }
+  console.log("Message", message);
+  console.log("Previous message", previousMessage);
+
+  const isSameDay =
+    message?.createdAt &&
+    previousMessage?.createdAt &&
+    format(new Date(message?.createdAt), "MMM d, yyyy") ===
+      format(new Date(previousMessage?.createdAt), "MMM d, yyyy");
+
+  const isDiffMoreThan10Minutes =
+    message?.createdAt &&
+    previousMessage?.createdAt &&
+    differenceInMinutes(
+      new Date(message?.createdAt),
+      new Date(previousMessage?.createdAt)
+    ) > 10;
+
+  console.log("isDiffMoreThan10Minutes", isDiffMoreThan10Minutes);
+
+  const isSameUser =
+    message?.sender?._id === previousMessage?.sender?._id &&
+    message?.receiver?._id === previousMessage?.receiver?._id;
 
   return (
-    <div className={` py-2 px-4`}>
-      <div className="max-w-2xl flex items-start group  gap-3">
-        <div className="flex items-center gap-2 justify-between">
-          <div className="flex items-center gap-2">
-            {message.sender._id !== me._id ? (
-              user?.imgUrl ? (
-                <div className="size-8 text-preset-7 bg-tertiary-text rounded-full flex items-center justify-center">
-                  <img
-                    src={user?.imgUrl}
-                    alt="avatar"
-                    className="size-full rounded-full"
-                  />
-                </div>
-              ) : (
-                <div className="size-8 text-preset-7 bg-blue-500 text-white rounded-full flex items-center justify-center">
-                  {user?.name?.charAt(0)}
-                </div>
-              )
-            ) : me.imgUrl ? (
-              <div className="size-8 text-preset-7 bg-tertiary-text rounded-full flex items-center justify-center">
-                <img
-                  src={me.imgUrl}
-                  alt="avatar"
-                  className="size-full rounded-full"
-                />
-              </div>
-            ) : (
-              <div className="size-8 text-preset-7 bg-rose-500 text-white rounded-full flex items-center justify-center">
-                {me?.name?.charAt(0)}
+    <div>
+      {!isSameDay && (
+        <div className="flex items-center gap-2 ">
+          <div className="flex-1 w-full h-[1px] bg-tertiary-text/20"></div>
+          <div className="text-preset-8 font-semibold text-tertiary-text">
+            {format(new Date(message?.createdAt), "MMM d, yyyy")}
+          </div>
+          <div className="flex-1 w-full h-[1px] bg-tertiary-text/20"></div>
+        </div>
+      )}
+      <div
+        className={`${
+          isSameUser && !isDiffMoreThan10Minutes ? "py-0" : "py-2"
+        } px-4 hover:bg-tertiary-text/10 transition-colors duration-300`}
+      >
+        <div className="max-w-2xl flex items-start group  gap-3">
+          <div className="flex items-center gap-2 justify-between">
+            {!isDiffMoreThan10Minutes && !isSameUser && (
+              <div className="flex items-center gap-2">
+                {message.sender._id !== me._id ? (
+                  user?.imgUrl ? (
+                    <div className="size-8 text-preset-7 bg-tertiary-text rounded-full flex items-center justify-center">
+                      <img
+                        src={user?.imgUrl}
+                        alt="avatar"
+                        className="size-full rounded-full"
+                      />
+                    </div>
+                  ) : (
+                    <div className="size-8 text-preset-7 bg-blue-500 text-white rounded-full flex items-center justify-center">
+                      {user?.name?.charAt(0)}
+                    </div>
+                  )
+                ) : me.imgUrl ? (
+                  <div className="size-8 text-preset-7 bg-tertiary-text rounded-full flex items-center justify-center">
+                    <img
+                      src={me.imgUrl}
+                      alt="avatar"
+                      className="size-full rounded-full"
+                    />
+                  </div>
+                ) : (
+                  <div className="size-8 text-preset-7 bg-rose-500 text-white rounded-full flex items-center justify-center">
+                    {me?.name?.charAt(0)}
+                  </div>
+                )}
               </div>
             )}
           </div>
-        </div>
 
-        <div className="flex flex-col gap-1 w-full">
-          <div className="text-preset-9 text-tertiary-text flex items-center justify-between w-full">
-            <div className="flex items-center gap-1">
-              <span className="text-preset-7 text-primary-text">
-                {message.sender?._id === me?._id
-                  ? me?.name
-                  : message.sender.name}
-              </span>
-              &bull;
-              <span>{message.createdAt}</span>
-              {message.sender._id === me._id && (
-                <>
+          <div className="flex flex-col gap-1 w-full">
+            <div className="text-preset-9 text-tertiary-text flex items-center justify-between w-full">
+              {!isSameUser && !isDiffMoreThan10Minutes && (
+                <div className="flex items-center gap-1">
+                  <span className="text-preset-7 text-primary-text">
+                    {message.sender?._id === me?._id
+                      ? me?.name
+                      : message.sender.name}
+                  </span>
                   &bull;
-                  <div className="flex items-center gap-1 justify-end">
-                    <CheckCheck
-                      className={`size-4  ${
-                        message.isRead
-                          ? "text-blue-600"
-                          : "text-tertiary-text/50"
-                      }`}
-                    />
-                  </div>
-                </>
+                  <span>{format(new Date(message.createdAt), "h:mm a")}</span>
+                  {message.sender._id === me._id && (
+                    <>
+                      &bull;
+                      <div className="flex items-center gap-1 justify-end">
+                        <CheckCheck
+                          className={`size-4  ${
+                            message.isRead
+                              ? "text-blue-600"
+                              : "text-tertiary-text/50"
+                          }`}
+                        />
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
+              <span
+                className={`${
+                  isSameUser && !isDiffMoreThan10Minutes && "hidden"
+                } opacity-0 group-hover:opacity-100 transition-opacity duration-300`}
+              >
+                <MessagePopover {...message} />
+              </span>
+            </div>
+            {/* Text  */}
+            <div
+              className={`text-preset-7  text-secondary-text ${
+                isSameUser &&
+                !isDiffMoreThan10Minutes &&
+                "ml-8 flex items-start gap-2 justify-between"
+              }`}
+            >
+              {message.content}
+              {isSameUser && !isDiffMoreThan10Minutes && (
+                <span
+                  className={`opacity-0 group-hover:opacity-100 transition-opacity duration-300`}
+                >
+                  <MessagePopover {...message} />
+                </span>
               )}
             </div>
-            <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-              <MessagePopover {...message} />
-            </span>
-          </div>
-          {/* Text  */}
-          <div className="text-preset-7  text-secondary-text">
-            {message.content}
           </div>
         </div>
       </div>
