@@ -36,8 +36,6 @@ export const Sidebar = ({ typingUser }: { typingUser: string | null }) => {
 
   const users = data?.data;
 
-  console.log("Users", users);
-
   const formattedUsers = users?.map((user: IUser) => ({
     id: user._id,
     name: user.name,

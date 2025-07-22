@@ -22,7 +22,6 @@ export const Header = ({
   user: IUser;
   typingUser: string | null;
 }) => {
-  console.log(typingUser, user?._id);
   return (
     <div className=" border-b border-neutral-200 dark:border-neutral-800 p-3 px-6 flex justify-between items-center">
       <div className="flex items-center gap-3">

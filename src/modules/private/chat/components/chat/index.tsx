@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Header, Message, Profile, SendMessageInput } from "./components";
 import { getMyMessages } from "@/api/messages";
-import { QueryClient, useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import socket from "@/lib/socket";
 import { useParams } from "react-router-dom";
 import { getUserById } from "@/api/user";
@@ -16,6 +16,7 @@ export const Chat = ({
 }) => {
   const [isProfileShown, setIsProfileShown] = useState<boolean>(true);
   const [messages, setMessages] = useState<IMessage[]>([]);
+  const [isMarkedAsRead, setIsMarkedAsRead] = useState<boolean>(false);
 
   const { id } = useParams();
 
@@ -28,44 +29,22 @@ export const Chat = ({
   const user = userData?.data;
 
   const myId = JSON.parse(localStorage.getItem("user") || "{}")?._id;
-  const me = JSON.parse(localStorage.getItem("user") || "{}");
+  const queryClient = useQueryClient();
 
   const { data } = useQuery({
     queryKey: ["messages", id],
     queryFn: () => getMyMessages(id as string),
     enabled: !!id,
     refetchInterval: 60000,
+    refetchOnWindowFocus: false,
   });
 
   const bottomRef = useRef<HTMLDivElement | null>(null);
 
   const msgs = data?.messages;
 
-  useEffect(() => {
-    if (msgs) {
-      const formattedMessages = msgs?.map((message: IMessage) => ({
-        _id: message._id,
-        sender: message.sender,
-        content: message.content,
-        createdAt: new Date(message.createdAt).toLocaleTimeString("en-US", {
-          hour: "2-digit",
-          minute: "2-digit",
-        }),
-        isRead: message.isRead,
-        receiver: {
-          _id: message.receiver._id,
-          name: message.receiver.name,
-          imgUrl: message.receiver.imgUrl,
-        },
-        deliveredAt: message.deliveredAt,
-      }));
-      setMessages(formattedMessages);
-    }
-  }, [msgs]);
-
-  useEffect(() => {
-    const handleNewMessage = (message: IMessage) => {
-      console.log("New message", message);
+  const handleNewMessage = useCallback(
+    (message: IMessage) => {
       if (message.receiver._id == myId) {
         const notificationAudio = new Audio("/sounds/message-notification.mp3");
 
@@ -76,18 +55,16 @@ export const Chat = ({
         });
       }
 
-      const queryClient = new QueryClient();
-
       queryClient.invalidateQueries({ queryKey: ["users"] });
 
       // Emit mark-as-read if the message is for the currently open chat
-      console.log("New message for mark as read", message);
       if (message.sender._id === id && message.receiver._id === myId) {
-        console.log("I sent the message", "am I here?");
+        console.log("Marking as read on new message");
         socket.emit("mark-as-read", {
-          senderId: message.sender._id,
-          receiverId: message.receiver._id,
+          senderId: id,
+          receiverId: myId,
         });
+        setIsMarkedAsRead(true);
       }
 
       setMessages((prev: IMessage[]) => [
@@ -113,46 +90,72 @@ export const Chat = ({
           deliveredAt: message.deliveredAt,
         },
       ]);
-    };
+    },
+    [myId, id, queryClient]
+  );
 
+  useEffect(() => {
+    if (msgs) {
+      const formattedMessages = msgs?.map((message: IMessage) => ({
+        _id: message._id,
+        sender: message.sender,
+        content: message.content,
+        createdAt: new Date(message.createdAt).toLocaleTimeString("en-US", {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+        isRead: message.isRead,
+        receiver: {
+          _id: message.receiver._id,
+          name: message.receiver.name,
+          imgUrl: message.receiver.imgUrl,
+        },
+        deliveredAt: message.deliveredAt,
+      }));
+      setMessages(formattedMessages);
+    }
+  }, [msgs]);
+
+  useEffect(() => {
+    if (id) {
+      socket.emit("mark-as-read", {
+        senderId: id,
+        receiverId: myId,
+      });
+    }
+  }, [id, myId]);
+
+  useEffect(() => {
+    if (id) {
+      console.log("messages length changed", messages.length);
+      socket.on("mark-as-read", ({ receiverId }: { receiverId: string }) => {
+        if (receiverId === id) {
+          console.log("mark-as-read", receiverId);
+          setMessages((prevMessages) =>
+            prevMessages.map((message) => {
+              console.log("message", message);
+              if (message.receiver._id === id) {
+                return { ...message, isRead: true };
+              }
+              return message;
+            })
+          );
+        }
+      });
+    }
+  }, [messages.length, id, myId]);
+
+  useEffect(() => {
     socket.on("private-message", handleNewMessage);
 
     return () => {
       socket.off("private-message", handleNewMessage);
     };
-  }, [id, myId]);
+  }, [id, myId, handleNewMessage]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
-
-  useEffect(() => {
-    if (id) {
-      socket.emit("mark-as-read", {
-        senderId: me._id,
-        receiverId: id,
-      });
-    }
-  }, [id, me._id, messages.length]);
-
-  useEffect(() => {
-    const handleMarkAsRead = () => {
-      setMessages((prevMessages) =>
-        prevMessages.map((msg) => {
-          if (msg.sender._id === me._id && msg.receiver._id === id) {
-            return { ...msg, isRead: true };
-          }
-          return msg;
-        })
-      );
-    };
-
-    socket.on("mark-as-read", handleMarkAsRead);
-
-    return () => {
-      socket.off("mark-as-read", handleMarkAsRead);
-    };
-  }, [me._id, id]);
 
   return (
     <div className="w-full h-dvh relative bg-surface flex flex-col">

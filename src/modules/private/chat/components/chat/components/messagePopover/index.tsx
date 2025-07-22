@@ -23,7 +23,6 @@ export const MessagePopover = (message: IMessage) => {
   });
 
   const handleDelete = () => {
-    console.log("message._id", message._id);
     mutate(message._id as string);
   };
 

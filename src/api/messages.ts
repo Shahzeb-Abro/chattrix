@@ -14,7 +14,6 @@ export const getMyMessages = async (id: string) => {
 };
 
 export const deleteMessage = async (id: string) => {
-  console.log("Id in api request", id);
   try {
     const response = await axios.delete(`${baseUrl}/${id}`, {
       withCredentials: true,

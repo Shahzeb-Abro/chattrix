@@ -7,8 +7,6 @@ export const ChatModule = () => {
   const [typingUser, setTypingUser] = useState<string | null>(null);
   useEffect(() => {
     const handleTyping = ({ senderId }: { senderId: string }) => {
-      console.log("typing", senderId);
-
       setTypingUser(senderId);
       setIsTyping(true);
     };

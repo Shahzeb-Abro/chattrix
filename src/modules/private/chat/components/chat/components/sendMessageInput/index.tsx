@@ -34,6 +34,7 @@ export const SendMessageInput = () => {
       senderId: me._id,
       receiverId: id,
     });
+
     setMessage("");
   };
 
