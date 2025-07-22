@@ -27,7 +27,7 @@ interface IChat {
   imgUrl: string;
 }
 
-export const Sidebar = () => {
+export const Sidebar = ({ typingUser }: { typingUser: string | null }) => {
   const { data } = useQuery({
     queryKey: ["users"],
     queryFn: getAllUsers,
@@ -44,6 +44,7 @@ export const Sidebar = () => {
     lastMessage: user?.lastMessage?.content,
     lastMessageTime: formatShortTime(user?.lastMessage?.createdAt),
     sender: user?.lastMessage?.sender,
+    imgUrl: user?.imgUrl,
   }));
 
   return (
@@ -73,7 +74,7 @@ export const Sidebar = () => {
               chat.id === id && "bg-neutral-0 dark:bg-neutral-900"
             } flex items-center gap-3 p-2 rounded-lg`}
           >
-            <div className="flex-shrink-0">
+            <div className="flex-shrink-0 relative">
               {chat.imgUrl ? (
                 <img
                   src={chat.imgUrl}
@@ -91,7 +92,13 @@ export const Sidebar = () => {
                 {chat.name}
               </div>
               <div className="text-preset-8 font-medium text-secondary-text line-clamp-1">
-                {chat?.sender && chat.sender}: {chat.lastMessage}
+                {typingUser === chat.id ? (
+                  <span className="text-blue-600 dark:text-blue-400">
+                    Typing...
+                  </span>
+                ) : (
+                  `${chat?.sender && chat.sender}: ${chat.lastMessage}`
+                )}
               </div>
             </div>
             <div className="flex flex-col items-end gap-1">

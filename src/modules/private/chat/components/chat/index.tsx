@@ -7,10 +7,15 @@ import { useParams } from "react-router-dom";
 import { getUserById } from "@/api/user";
 import type { IMessage } from "@/types/global";
 
-export const Chat = () => {
+export const Chat = ({
+  isTyping,
+  typingUser,
+}: {
+  isTyping: boolean;
+  typingUser: string | null;
+}) => {
   const [isProfileShown, setIsProfileShown] = useState<boolean>(true);
   const [messages, setMessages] = useState<IMessage[]>([]);
-  const [isTyping, setIsTyping] = useState(false);
 
   const { id } = useParams();
 
@@ -57,28 +62,6 @@ export const Chat = () => {
       setMessages(formattedMessages);
     }
   }, [msgs]);
-
-  useEffect(() => {
-    const handleTyping = ({ senderId }: { senderId: string }) => {
-      if (senderId === id) {
-        setIsTyping(true);
-      }
-    };
-
-    const handleStopTyping = ({ senderId }: { senderId: string }) => {
-      if (senderId === id) {
-        setIsTyping(false);
-      }
-    };
-
-    socket.on("typing", handleTyping);
-    socket.on("stop-typing", handleStopTyping);
-
-    return () => {
-      socket.off("typing", handleTyping);
-      socket.off("stop-typing", handleStopTyping);
-    };
-  }, [id]);
 
   useEffect(() => {
     const handleNewMessage = (message: IMessage) => {
@@ -179,6 +162,7 @@ export const Chat = () => {
         setIsProfileShown={setIsProfileShown}
         isTyping={isTyping}
         user={user}
+        typingUser={typingUser}
       />
       <div className="flex-1 flex ">
         <div className="flex-1">

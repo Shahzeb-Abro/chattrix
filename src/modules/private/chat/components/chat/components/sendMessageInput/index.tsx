@@ -13,6 +13,7 @@ export const SendMessageInput = () => {
   const handleTyping = () => {
     socket.emit("typing", {
       receiverId: id,
+      myId: me._id,
     });
 
     if (typingTimeout.current) {
@@ -45,7 +46,7 @@ export const SendMessageInput = () => {
 
   return (
     <div className="p-3 px-6  bg-surface border-t border-neutral-200 dark:border-neutral-800  ">
-      <div className="w-full h-12  rounded-lg border border-slate-300 dark:bg-neutral-700  dark:border-neutral-600  bg-slate-100 focus:outline-none focus:shadow-sm flex items-center justify-between">
+      <div className="w-full h-12  rounded-lg border border-slate-300 dark:bg-neutral-900  dark:border-neutral-600  bg-white focus:outline-none focus:shadow-sm flex items-center justify-between">
         <Paperclip className="size-6 text-neutral-500 dark:text-neutral-300 ml-4" />
         <input
           type="text"

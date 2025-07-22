@@ -14,12 +14,15 @@ export const Header = ({
   setIsProfileShown,
   isTyping,
   user,
+  typingUser,
 }: {
   isProfileShown: boolean;
   setIsProfileShown: (isProfileShown: boolean) => void;
   isTyping: boolean;
   user: IUser;
+  typingUser: string | null;
 }) => {
+  console.log(typingUser, user?._id);
   return (
     <div className=" border-b border-neutral-200 dark:border-neutral-800 p-3 px-6 flex justify-between items-center">
       <div className="flex items-center gap-3">
@@ -41,7 +44,7 @@ export const Header = ({
             {user?.name}
           </div>
           <div className="text-preset-8 font-medium text-blue-600 dark:text-blue-400">
-            {isTyping ? "Typing..." : "Online"}
+            {isTyping && typingUser === user?._id ? "Typing..." : "Online"}
           </div>
         </div>
       </div>
