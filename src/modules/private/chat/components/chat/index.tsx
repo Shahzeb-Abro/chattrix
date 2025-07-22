@@ -6,6 +6,7 @@ import socket from "@/lib/socket";
 import { useParams } from "react-router-dom";
 import { getUserById } from "@/api/user";
 import type { IMessage } from "@/types/global";
+import useMessages from "@/stores/messages";
 
 export const Chat = ({
   isTyping,
@@ -15,7 +16,7 @@ export const Chat = ({
   typingUser: string | null;
 }) => {
   const [isProfileShown, setIsProfileShown] = useState<boolean>(true);
-  const [messages, setMessages] = useState<IMessage[]>([]);
+  const { messages, setMessages, addMessage } = useMessages();
 
   const { id } = useParams();
 
@@ -64,31 +65,15 @@ export const Chat = ({
         });
       }
 
-      setMessages((prev: IMessage[]) => [
-        ...prev,
-        {
-          _id: message._id,
-          content: message.content,
-          sender: {
-            _id: message.sender._id,
-            name: message.sender.name,
-            imgUrl: message.sender.imgUrl,
-          },
-          receiver: {
-            _id: message.receiver._id,
-            name: message.receiver.name,
-            imgUrl: message.receiver.imgUrl,
-          },
-          createdAt: new Date(message.createdAt).toLocaleTimeString("en-US", {
-            hour: "2-digit",
-            minute: "2-digit",
-          }),
-          isRead: message.isRead,
-          deliveredAt: message.deliveredAt,
-        },
-      ]);
+      addMessage({
+        ...message,
+        createdAt: new Date(message.createdAt).toLocaleTimeString("en-US", {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+      });
     },
-    [myId, id, queryClient]
+    [myId, id, queryClient, addMessage]
   );
 
   useEffect(() => {
@@ -111,7 +96,7 @@ export const Chat = ({
       }));
       setMessages(formattedMessages);
     }
-  }, [msgs]);
+  }, [msgs, setMessages]);
 
   useEffect(() => {
     if (id) {
@@ -126,19 +111,13 @@ export const Chat = ({
     if (id) {
       socket.on("mark-as-read", ({ receiverId }: { receiverId: string }) => {
         if (receiverId === id) {
-          setMessages((prevMessages) =>
-            prevMessages.map((message) => {
-              console.log("message", message);
-              if (message.receiver._id === id) {
-                return { ...message, isRead: true };
-              }
-              return message;
-            })
+          setMessages(
+            messages.map((message) => ({ ...message, isRead: true }))
           );
         }
       });
     }
-  }, [messages.length, id, myId, queryClient]);
+  }, [messages.length, id, myId, setMessages, messages]);
 
   useEffect(() => {
     socket.on("private-message", handleNewMessage);
@@ -149,7 +128,7 @@ export const Chat = ({
   }, [id, myId, handleNewMessage]);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    bottomRef.current?.scrollIntoView();
   }, [messages]);
 
   return (

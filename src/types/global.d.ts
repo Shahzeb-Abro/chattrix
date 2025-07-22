@@ -15,3 +15,25 @@ export interface IMessage {
     imgUrl: string;
   };
 }
+
+export interface IUser {
+  _id: string;
+  name: string;
+  lastMessage: {
+    content: string;
+    createdAt: string;
+    sender: string;
+  };
+  imgUrl: string;
+  unreadCount: number;
+}
+
+export interface IChat {
+  id: string;
+  name: string;
+  lastMessage: string;
+  lastMessageTime: string;
+  sender: string;
+  imgUrl: string;
+  unreadCount: number;
+}

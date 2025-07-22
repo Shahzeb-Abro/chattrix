@@ -1,45 +1,32 @@
 import { Settings } from "lucide-react";
 
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { getAllUsers } from "@/api/user";
 import ROUTES from "@/constants/routes";
 import { Link, useParams } from "react-router-dom";
 import { avatarJohn } from "@/constants/images";
 import { formatShortTime } from "@/lib/dateTime";
-
-interface IUser {
-  _id: string;
-  name: string;
-  lastMessage: {
-    content: string;
-    createdAt: string;
-    sender: string;
-  };
-  imgUrl: string;
-  unreadCount: number;
-}
-
-interface IChat {
-  id: string;
-  name: string;
-  lastMessage: string;
-  lastMessageTime: string;
-  sender: string;
-  imgUrl: string;
-  unreadCount: number;
-}
+import type { IUser, IChat } from "@/types/global";
+import useSidebarUsers from "@/stores/sidebarUsers";
+import { useEffect } from "react";
 
 export const Sidebar = ({ typingUser }: { typingUser: string | null }) => {
-  const queryClient = useQueryClient();
   const { data } = useQuery({
     queryKey: ["users"],
     queryFn: getAllUsers,
   });
   const { id } = useParams();
+  const { sidebarUsers, setSidebarUsers } = useSidebarUsers();
 
   const users = data?.data;
 
-  const formattedUsers = users?.map((user: IUser) => ({
+  useEffect(() => {
+    if (users) {
+      setSidebarUsers(users);
+    }
+  }, [users, setSidebarUsers]);
+
+  const formattedUsers = sidebarUsers?.map((user: IUser) => ({
     id: user._id,
     name: user.name,
     lastMessage: user?.lastMessage?.content,
@@ -49,7 +36,14 @@ export const Sidebar = ({ typingUser }: { typingUser: string | null }) => {
     unreadCount: user?.unreadCount,
   }));
 
-  console.log("formattedUsers", formattedUsers);
+  const handleRead = (id: string) => {
+    setSidebarUsers(
+      sidebarUsers.map((user) =>
+        user._id === id ? { ...user, unreadCount: 0 } : user
+      )
+    );
+  };
+
   return (
     <div className="max-w-[300px]   hidden w-full h-full bg-surface md:flex flex-col gap-5 border-r border-neutral-200  dark:border-neutral-800">
       {/* Logo and Filters  */}
@@ -74,7 +68,7 @@ export const Sidebar = ({ typingUser }: { typingUser: string | null }) => {
             to={ROUTES.CHAT(chat.id)}
             key={chat.id}
             onClick={() => {
-              queryClient.invalidateQueries({ queryKey: ["users"] });
+              handleRead(chat.id);
             }}
             className={`${
               chat.id === id && "bg-neutral-0 dark:bg-neutral-900"
