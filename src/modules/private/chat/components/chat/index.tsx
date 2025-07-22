@@ -16,7 +16,6 @@ export const Chat = ({
 }) => {
   const [isProfileShown, setIsProfileShown] = useState<boolean>(true);
   const [messages, setMessages] = useState<IMessage[]>([]);
-  const [isMarkedAsRead, setIsMarkedAsRead] = useState<boolean>(false);
 
   const { id } = useParams();
 
@@ -64,7 +63,6 @@ export const Chat = ({
           senderId: id,
           receiverId: myId,
         });
-        setIsMarkedAsRead(true);
       }
 
       setMessages((prev: IMessage[]) => [
