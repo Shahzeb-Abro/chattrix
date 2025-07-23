@@ -23,9 +23,6 @@ export const Message = ({
   const user = data?.data;
   const me = JSON.parse(localStorage.getItem("user") || "{}");
 
-  console.log("Message", message);
-  console.log("Previous message", previousMessage);
-
   const isSameDay =
     message?.createdAt &&
     previousMessage?.createdAt &&
@@ -58,7 +55,7 @@ export const Message = ({
       <div
         className={`${
           isSameUser && !isEnoughDifference ? "py-0" : "py-2"
-        } px-4 hover:bg-tertiary-text/10 transition-colors duration-300`}
+        } px-4 hover:bg-tertiary-text/10 transition-colors duration-300 relative`}
       >
         <div className="max-w-2xl flex items-start group  gap-3">
           <div className="flex items-center gap-2 justify-between">

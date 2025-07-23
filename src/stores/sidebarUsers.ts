@@ -1,16 +1,5 @@
+import type { IUser } from "@/types/global";
 import { create } from "zustand";
-
-interface IUser {
-  _id: string;
-  name: string;
-  lastMessage: {
-    content: string;
-    createdAt: string;
-    sender: string;
-  };
-  imgUrl: string;
-  unreadCount: number;
-}
 
 const useSidebarUsers = create<{
   sidebarUsers: IUser[];

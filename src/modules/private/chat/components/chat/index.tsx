@@ -4,9 +4,9 @@ import { getMyMessages } from "@/api/messages";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import socket from "@/lib/socket";
 import { useParams } from "react-router-dom";
-import { getUserById } from "@/api/user";
-import type { IMessage } from "@/types/global";
+import type { IMessage, IUser } from "@/types/global";
 import useMessages from "@/stores/messages";
+import useSidebarUsers from "@/stores/sidebarUsers";
 
 export const Chat = ({
   isTyping,
@@ -17,16 +17,11 @@ export const Chat = ({
 }) => {
   const [isProfileShown, setIsProfileShown] = useState<boolean>(true);
   const { messages, setMessages, addMessage } = useMessages();
+  const { sidebarUsers } = useSidebarUsers();
 
   const { id } = useParams();
 
-  const { data: userData } = useQuery({
-    queryKey: ["user", id],
-    queryFn: () => getUserById(id as string),
-    enabled: !!id,
-  });
-
-  const user = userData?.data;
+  const user = sidebarUsers.find((user) => user._id === id);
 
   const myId = JSON.parse(localStorage.getItem("user") || "{}")?._id;
   const queryClient = useQueryClient();
@@ -116,7 +111,7 @@ export const Chat = ({
         isProfileShown={isProfileShown}
         setIsProfileShown={setIsProfileShown}
         isTyping={isTyping}
-        user={user}
+        user={user as IUser}
         typingUser={typingUser}
       />
       <div className="flex-1 flex ">
@@ -138,7 +133,7 @@ export const Chat = ({
         </div>
 
         {/* Profile  */}
-        {isProfileShown && <Profile user={user} />}
+        {isProfileShown && <Profile user={user as IUser} />}
       </div>
     </div>
   );

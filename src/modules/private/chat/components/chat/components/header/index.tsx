@@ -1,13 +1,6 @@
+import type { IUser } from "@/types/global";
 import { Phone, User2, Video } from "lucide-react";
-
-interface IUser {
-  _id: string;
-  name: string;
-  imgUrl?: string;
-  createdAt: string;
-  email: string;
-  __v: number;
-}
+import { format } from "date-fns";
 
 export const Header = ({
   isProfileShown,
@@ -43,7 +36,17 @@ export const Header = ({
             {user?.name}
           </div>
           <div className="text-preset-8 font-medium text-blue-600 dark:text-blue-400">
-            {isTyping && typingUser === user?._id ? "Typing..." : "Online"}
+            {isTyping && typingUser === user?._id ? (
+              "Typing..."
+            ) : user?.isOnline ? (
+              "Online"
+            ) : (
+              <span className="text-preset-8 font-medium text-secondary-text">
+                {user?.lastSeen
+                  ? "Last seen " + format(new Date(user?.lastSeen), "h:mm a")
+                  : "Offline"}
+              </span>
+            )}
           </div>
         </div>
       </div>

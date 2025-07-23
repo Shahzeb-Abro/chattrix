@@ -5,10 +5,11 @@ import { getAllUsers } from "@/api/user";
 import ROUTES from "@/constants/routes";
 import { Link, useParams } from "react-router-dom";
 import { avatarJohn } from "@/constants/images";
-import { formatShortTime } from "@/lib/dateTime";
-import type { IUser, IChat } from "@/types/global";
+import type { IUser } from "@/types/global";
 import useSidebarUsers from "@/stores/sidebarUsers";
 import { useEffect } from "react";
+import { formatShortTime } from "@/lib/dateTime";
+import socket from "@/lib/socket";
 
 export const Sidebar = ({ typingUser }: { typingUser: string | null }) => {
   const { data } = useQuery({
@@ -26,18 +27,6 @@ export const Sidebar = ({ typingUser }: { typingUser: string | null }) => {
     }
   }, [users, setSidebarUsers]);
 
-  const formattedUsers = sidebarUsers?.map((user: IUser) => ({
-    id: user._id,
-    name: user.name,
-    lastMessage: user?.lastMessage?.content,
-    lastMessageTime: user?.lastMessage?.createdAt
-      ? formatShortTime(user?.lastMessage?.createdAt)
-      : null,
-    sender: user?.lastMessage?.sender,
-    imgUrl: user?.imgUrl,
-    unreadCount: user?.unreadCount,
-  }));
-
   const handleRead = (id: string) => {
     setSidebarUsers(
       sidebarUsers.map((user) =>
@@ -45,6 +34,31 @@ export const Sidebar = ({ typingUser }: { typingUser: string | null }) => {
       )
     );
   };
+
+  useEffect(() => {
+    socket.on("user-online", ({ userId }: { userId: string }) => {
+      setSidebarUsers(
+        sidebarUsers.map((user) =>
+          user._id === userId ? { ...user, isOnline: true } : user
+        )
+      );
+    });
+
+    socket.on("user-offline", ({ userId }: { userId: string }) => {
+      setSidebarUsers(
+        sidebarUsers.map((user) =>
+          user._id === userId
+            ? { ...user, isOnline: false, lastSeen: new Date().toISOString() }
+            : user
+        )
+      );
+    });
+
+    return () => {
+      socket.off("user-online");
+      socket.off("user-offline");
+    };
+  }, [sidebarUsers, setSidebarUsers]);
 
   return (
     <div className="max-w-[300px]   hidden w-full h-full bg-surface md:flex flex-col gap-5 border-r border-neutral-200  dark:border-neutral-800">
@@ -65,19 +79,19 @@ export const Sidebar = ({ typingUser }: { typingUser: string | null }) => {
 
       {/* Chats Overview  */}
       <div className="flex flex-col gap-1 flex-1 overflow-y-auto px-5">
-        {formattedUsers?.map((chat: IChat) => (
+        {sidebarUsers?.map((chat: IUser) => (
           <Link
-            to={ROUTES.CHAT(chat.id)}
-            key={chat.id}
+            to={ROUTES.CHAT(chat._id)}
+            key={chat._id}
             onClick={() => {
-              handleRead(chat.id);
+              handleRead(chat._id);
             }}
             className={`${
-              chat.id === id && "bg-neutral-0 dark:bg-neutral-900"
+              chat._id === id && "bg-neutral-0 dark:bg-neutral-900"
             } flex items-center gap-3 p-2 rounded-lg`}
           >
             <div className="flex-shrink-0 relative">
-              {chat.imgUrl ? (
+              {chat?.imgUrl ? (
                 <img
                   src={chat.imgUrl}
                   alt="Avatar"
@@ -88,33 +102,40 @@ export const Sidebar = ({ typingUser }: { typingUser: string | null }) => {
                   {chat.name.charAt(0).toUpperCase()}
                 </div>
               )}
+              <div
+                className={`absolute bottom-0 right-0 size-3 rounded-full  border-2 border-white dark:border-neutral-900 ${
+                  chat?.isOnline
+                    ? "bg-blue-600"
+                    : "bg-neutral-200 dark:bg-neutral-600"
+                } transition-colors duration-300`}
+              ></div>
             </div>
             <div className="flex flex-col gap-1 flex-1">
               <div className="text-preset-7 font-semibold text-primary-text">
                 {chat.name}
               </div>
               <div className="text-preset-8 font-medium text-secondary-text line-clamp-1">
-                {typingUser === chat.id ? (
+                {typingUser === chat._id ? (
                   <span className="text-blue-600 dark:text-blue-400">
                     Typing...
                   </span>
                 ) : (
-                  chat?.lastMessage && (
+                  chat?.lastMessage?.content && (
                     <span
                       className={`${
                         chat?.unreadCount > 0 && "font-bold"
                       } text-secondary-text`}
                     >
-                      {chat?.sender && chat.sender}: {chat.lastMessage}
+                      {chat?.lastMessage.sender}: {chat.lastMessage.content}
                     </span>
                   )
                 )}
               </div>
             </div>
             <div className="flex flex-col items-end gap-1">
-              {chat?.lastMessageTime && (
+              {chat?.lastMessage?.createdAt && (
                 <div className="text-preset-9 text-tertiary-text">
-                  {chat.lastMessageTime}
+                  {formatShortTime(chat.lastMessage.createdAt)}
                 </div>
               )}
               {chat?.unreadCount > 0 && (

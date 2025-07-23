@@ -27,7 +27,7 @@ export const MessagePopover = (message: IMessage) => {
   };
 
   return (
-    <div className="flex items-center gap-1 p-1 bg-white border border-neutral-200 dark:bg-neutral-900 dark:border-neutral-800 rounded-md -mt-8">
+    <div className="absolute top-0 right-0 flex items-center gap-1 p-1 bg-white border border-neutral-200 dark:bg-neutral-900 dark:border-neutral-800 rounded-md -mt-8">
       <div className=" flex items-center justify-center size-8 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-all">
         <Reply className="size-5  text-neutral-500 dark:text-neutral-300 hover:text-blue-600" />
       </div>

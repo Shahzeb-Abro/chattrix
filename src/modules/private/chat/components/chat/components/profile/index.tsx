@@ -1,13 +1,5 @@
+import type { IUser } from "@/types/global";
 import { ProfilePopover } from "../profilePopover";
-
-interface IUser {
-  _id: string;
-  name: string;
-  imgUrl?: string;
-  createdAt: string;
-  email: string;
-  __v: number;
-}
 
 export const Profile = ({ user }: { user: IUser }) => {
   return (

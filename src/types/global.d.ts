@@ -26,6 +26,9 @@ export interface IUser {
   };
   imgUrl: string;
   unreadCount: number;
+  isOnline: boolean;
+  lastSeen: string;
+  email: string;
 }
 
 export interface IChat {
@@ -36,4 +39,6 @@ export interface IChat {
   sender: string;
   imgUrl: string;
   unreadCount: number;
+  isOnline: boolean;
+  lastSeen: string;
 }
