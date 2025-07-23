@@ -30,7 +30,9 @@ export const Sidebar = ({ typingUser }: { typingUser: string | null }) => {
     id: user._id,
     name: user.name,
     lastMessage: user?.lastMessage?.content,
-    lastMessageTime: formatShortTime(user?.lastMessage?.createdAt),
+    lastMessageTime: user?.lastMessage?.createdAt
+      ? formatShortTime(user?.lastMessage?.createdAt)
+      : null,
     sender: user?.lastMessage?.sender,
     imgUrl: user?.imgUrl,
     unreadCount: user?.unreadCount,
@@ -97,20 +99,24 @@ export const Sidebar = ({ typingUser }: { typingUser: string | null }) => {
                     Typing...
                   </span>
                 ) : (
-                  <span
-                    className={`${
-                      chat?.unreadCount > 0 && "font-bold"
-                    } text-secondary-text`}
-                  >
-                    {chat?.sender && chat.sender}: {chat.lastMessage}
-                  </span>
+                  chat?.lastMessage && (
+                    <span
+                      className={`${
+                        chat?.unreadCount > 0 && "font-bold"
+                      } text-secondary-text`}
+                    >
+                      {chat?.sender && chat.sender}: {chat.lastMessage}
+                    </span>
+                  )
                 )}
               </div>
             </div>
             <div className="flex flex-col items-end gap-1">
-              <div className="text-preset-9 text-tertiary-text">
-                {chat.lastMessageTime}
-              </div>
+              {chat?.lastMessageTime && (
+                <div className="text-preset-9 text-tertiary-text">
+                  {chat.lastMessageTime}
+                </div>
+              )}
               {chat?.unreadCount > 0 && (
                 <div className="text-preset-9 bg-blue-600 text-white rounded-full size-5 flex items-center justify-center">
                   {chat.unreadCount}

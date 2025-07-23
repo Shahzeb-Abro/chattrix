@@ -32,13 +32,14 @@ export const Message = ({
     format(new Date(message?.createdAt), "MMM d, yyyy") ===
       format(new Date(previousMessage?.createdAt), "MMM d, yyyy");
 
-  const isDiffMoreThan10Minutes =
+  const isEnoughDifference =
     message?.createdAt &&
     previousMessage?.createdAt &&
+    message?.sender?._id !== previousMessage?.sender?._id &&
     differenceInMinutes(
       new Date(message?.createdAt),
       new Date(previousMessage?.createdAt)
-    ) > 10;
+    ) > 2;
 
   const isSameUser =
     message?.sender?._id === previousMessage?.sender?._id &&
@@ -46,7 +47,7 @@ export const Message = ({
 
   console.log(
     isSameUser,
-    isDiffMoreThan10Minutes,
+    isEnoughDifference,
     message?.content,
     previousMessage?.content
   );
@@ -64,12 +65,12 @@ export const Message = ({
       )}
       <div
         className={`${
-          isSameUser && !isDiffMoreThan10Minutes ? "py-0" : "py-2"
+          isSameUser && !isEnoughDifference ? "py-0" : "py-2"
         } px-4 hover:bg-tertiary-text/10 transition-colors duration-300`}
       >
         <div className="max-w-2xl flex items-start group  gap-3">
           <div className="flex items-center gap-2 justify-between">
-            {isDiffMoreThan10Minutes ||
+            {isEnoughDifference ||
               (!isSameUser && (
                 <div className="flex items-center gap-2">
                   {message.sender._id !== me._id ? (
@@ -105,7 +106,7 @@ export const Message = ({
 
           <div className="flex flex-col gap-1 w-full">
             <div className="text-preset-9 text-tertiary-text flex items-center justify-between w-full">
-              {isDiffMoreThan10Minutes ||
+              {isEnoughDifference ||
                 (!isSameUser && (
                   <div className="flex items-center gap-1">
                     <span className="text-preset-7 text-primary-text">
@@ -133,7 +134,7 @@ export const Message = ({
                 ))}
               <span
                 className={`${
-                  isSameUser && !isDiffMoreThan10Minutes && "hidden"
+                  isSameUser && !isEnoughDifference && "hidden"
                 } opacity-0 group-hover:opacity-100 transition-opacity duration-300`}
               >
                 <MessagePopover {...message} />
@@ -143,12 +144,12 @@ export const Message = ({
             <div
               className={`text-preset-7  text-secondary-text ${
                 isSameUser &&
-                !isDiffMoreThan10Minutes &&
+                !isEnoughDifference &&
                 "ml-8 flex items-start gap-2 justify-between"
               }`}
             >
               {message.content}
-              {isSameUser && !isDiffMoreThan10Minutes && (
+              {isSameUser && !isEnoughDifference && (
                 <span
                   className={`opacity-0 group-hover:opacity-100 transition-opacity duration-300`}
                 >
