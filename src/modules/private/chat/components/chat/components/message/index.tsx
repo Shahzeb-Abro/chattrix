@@ -35,22 +35,14 @@ export const Message = ({
   const isEnoughDifference =
     message?.createdAt &&
     previousMessage?.createdAt &&
-    message?.sender?._id !== previousMessage?.sender?._id &&
     differenceInMinutes(
       new Date(message?.createdAt),
       new Date(previousMessage?.createdAt)
-    ) > 2;
+    ) >= 1;
 
   const isSameUser =
     message?.sender?._id === previousMessage?.sender?._id &&
     message?.receiver?._id === previousMessage?.receiver?._id;
-
-  console.log(
-    isSameUser,
-    isEnoughDifference,
-    message?.content,
-    previousMessage?.content
-  );
 
   return (
     <div>
@@ -70,68 +62,66 @@ export const Message = ({
       >
         <div className="max-w-2xl flex items-start group  gap-3">
           <div className="flex items-center gap-2 justify-between">
-            {isEnoughDifference ||
-              (!isSameUser && (
-                <div className="flex items-center gap-2">
-                  {message.sender._id !== me._id ? (
-                    user?.imgUrl ? (
-                      <div className="size-8 text-preset-7 bg-tertiary-text rounded-full flex items-center justify-center">
-                        <img
-                          src={user?.imgUrl}
-                          alt="avatar"
-                          className="size-full rounded-full"
-                        />
-                      </div>
-                    ) : (
-                      <div className="size-8 text-preset-7 bg-blue-500 text-white rounded-full flex items-center justify-center">
-                        {user?.name?.charAt(0)}
-                      </div>
-                    )
-                  ) : me.imgUrl ? (
+            {(isEnoughDifference || (!isEnoughDifference && !isSameUser)) && (
+              <div className="flex items-center gap-2">
+                {message.sender._id !== me._id ? (
+                  user?.imgUrl ? (
                     <div className="size-8 text-preset-7 bg-tertiary-text rounded-full flex items-center justify-center">
                       <img
-                        src={me.imgUrl}
+                        src={user?.imgUrl}
                         alt="avatar"
                         className="size-full rounded-full"
                       />
                     </div>
                   ) : (
-                    <div className="size-8 text-preset-7 bg-rose-500 text-white rounded-full flex items-center justify-center">
-                      {me?.name?.charAt(0)}
+                    <div className="size-8 text-preset-7 bg-blue-500 text-white rounded-full flex items-center justify-center">
+                      {user?.name?.charAt(0)}
                     </div>
-                  )}
-                </div>
-              ))}
+                  )
+                ) : me.imgUrl ? (
+                  <div className="size-8 text-preset-7 bg-tertiary-text rounded-full flex items-center justify-center">
+                    <img
+                      src={me.imgUrl}
+                      alt="avatar"
+                      className="size-full rounded-full"
+                    />
+                  </div>
+                ) : (
+                  <div className="size-8 text-preset-7 bg-rose-500 text-white rounded-full flex items-center justify-center">
+                    {me?.name?.charAt(0)}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           <div className="flex flex-col gap-1 w-full">
             <div className="text-preset-9 text-tertiary-text flex items-center justify-between w-full">
-              {isEnoughDifference ||
-                (!isSameUser && (
-                  <div className="flex items-center gap-1">
-                    <span className="text-preset-7 text-primary-text">
-                      {message.sender?._id === me?._id
-                        ? me?.name
-                        : message.sender.name}
-                    </span>
-                    &bull;
-                    <span>{format(new Date(message.createdAt), "h:mm a")}</span>
-                    {message.sender._id === me._id && (
-                      <>
-                        &bull;
-                        <div className="flex items-center gap-1 justify-end">
-                          <CheckCheck
-                            className={`size-4  ${
-                              message.isRead
-                                ? "text-blue-600"
-                                : "text-tertiary-text/50"
-                            }`}
-                          />
-                        </div>
-                      </>
-                    )}
-                  </div>
-                ))}
+              {(isEnoughDifference || (!isEnoughDifference && !isSameUser)) && (
+                <div className="flex items-center gap-1">
+                  <span className="text-preset-7 text-primary-text">
+                    {message.sender?._id === me?._id
+                      ? me?.name
+                      : message.sender.name}
+                  </span>
+                  &bull;
+                  <span>{format(new Date(message.createdAt), "h:mm a")}</span>
+                  {message.sender._id === me._id && (
+                    <>
+                      &bull;
+                      <div className="flex items-center gap-1 justify-end">
+                        <CheckCheck
+                          className={`size-4  ${
+                            message.isRead
+                              ? "text-blue-600"
+                              : "text-tertiary-text/50"
+                          }`}
+                        />
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
               <span
                 className={`${
                   isSameUser && !isEnoughDifference && "hidden"
