@@ -6,7 +6,7 @@ import {
 } from "@/components/ui/popover";
 import type { IMessage } from "@/types/global";
 import { QueryClient, useMutation } from "@tanstack/react-query";
-import { Copy, Forward, MoreVertical, Trash } from "lucide-react";
+import { Copy, Forward, MoreVertical, Trash, Reply, Edit } from "lucide-react";
 
 export const MessagePopover = (message: IMessage) => {
   const queryClient = new QueryClient();
@@ -28,6 +28,12 @@ export const MessagePopover = (message: IMessage) => {
 
   return (
     <div className="flex items-center gap-2 p-1 bg-white border border-neutral-200 dark:bg-neutral-900 dark:border-neutral-800 rounded-md -mt-8">
+      <div className="p-2 flex items-center justify-center size-8 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-all">
+        <Reply className="size-6  text-neutral-500 dark:text-neutral-300 hover:text-blue-600" />
+      </div>
+      <div className="p-2 flex items-center justify-center size-8 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-all">
+        <Edit className="size-6  text-neutral-500 dark:text-neutral-300 hover:text-blue-600" />
+      </div>
       <div className="p-2 flex items-center justify-center size-8 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-all">
         <Copy className="size-6  text-neutral-500 dark:text-neutral-300 hover:text-blue-600" />
       </div>
