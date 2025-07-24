@@ -7,7 +7,6 @@ import { useParams } from "react-router-dom";
 import type { IMessage, IUser } from "@/types/global";
 import useMessages from "@/stores/messages";
 import useSidebarUsers from "@/stores/sidebarUsers";
-
 export const Chat = ({
   isTyping,
   typingUser,

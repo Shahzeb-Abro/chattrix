@@ -1,6 +1,6 @@
 import type { IUser } from "@/types/global";
 import { Phone, User2, Video } from "lucide-react";
-import { format } from "date-fns";
+import { formatLastSeen } from "@/lib/dateTime";
 
 export const Header = ({
   isProfileShown,
@@ -43,7 +43,7 @@ export const Header = ({
             ) : (
               <span className="text-preset-8 font-medium text-secondary-text">
                 {user?.lastSeen
-                  ? "Last seen " + format(new Date(user?.lastSeen), "h:mm a")
+                  ? "Last seen " + formatLastSeen(new Date(user?.lastSeen))
                   : "Offline"}
               </span>
             )}

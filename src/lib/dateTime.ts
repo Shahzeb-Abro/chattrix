@@ -6,6 +6,11 @@ import {
   differenceInWeeks,
   differenceInMonths,
   differenceInYears,
+  isSameYear,
+  isThisWeek,
+  isYesterday,
+  isToday,
+  format,
 } from "date-fns";
 
 export function formatShortTime(date: Date | string): string {
@@ -32,4 +37,24 @@ export function formatShortTime(date: Date | string): string {
 
   const years = differenceInYears(now, target);
   return `${years}y`;
+}
+
+export function formatLastSeen(date: Date) {
+  if (isToday(date)) {
+    return `Today at ${format(date, "hh:mm a")}`;
+  }
+
+  if (isYesterday(date)) {
+    return `Yesterday at ${format(date, "hh:mm a")}`;
+  }
+
+  if (isThisWeek(date)) {
+    return `${format(date, "EEEE")} at ${format(date, "hh:mm a")}`; // e.g., Monday
+  }
+
+  if (isSameYear(date, new Date())) {
+    return format(date, "dd/MM/yyyy 'at' hh:mm a");
+  }
+
+  return format(date, "dd/MM/yyyy");
 }
