@@ -4,7 +4,6 @@ import { useQuery } from "@tanstack/react-query";
 import { getAllUsers } from "@/api/user";
 import ROUTES from "@/constants/routes";
 import { Link, useParams } from "react-router-dom";
-import { avatarJohn } from "@/constants/images";
 import type { IUser } from "@/types/global";
 import useSidebarUsers from "@/stores/sidebarUsers";
 import { useEffect } from "react";
@@ -20,6 +19,7 @@ export const Sidebar = ({ typingUser }: { typingUser: string | null }) => {
   const { sidebarUsers, setSidebarUsers } = useSidebarUsers();
 
   const users = data?.data;
+  const me = JSON.parse(localStorage.getItem("user") || "{}");
 
   useEffect(() => {
     if (users) {
@@ -150,7 +150,13 @@ export const Sidebar = ({ typingUser }: { typingUser: string | null }) => {
 
       {/* Profile and Settings Icon  */}
       <div className="flex items-center gap-3 justify-between  px-5 py-3 border-t border-neutral-200 dark:border-neutral-800">
-        <img src={avatarJohn} alt="Avatar" className="size-8 rounded-full" />
+        {me?.imgUrl ? (
+          <img src={me?.imgUrl} alt="Avatar" className="size-8 rounded-full" />
+        ) : (
+          <div className="size-8 flex items-center justify-center rounded-full bg-neutral-200 dark:bg-neutral-800">
+            {me?.name?.charAt(0)?.toUpperCase()}
+          </div>
+        )}
         <Settings className="size-5 text-neutral-500 dark:text-neutral-300 hover:text-blue-600 dark:hover:text-blue-400 cursor-pointer" />
       </div>
     </div>
