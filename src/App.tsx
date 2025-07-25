@@ -3,6 +3,7 @@ import socket from "./lib/socket";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 // import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { useEffect } from "react";
+import { ThemeProvider } from "./components/theme/themeProvider";
 
 const queryClient = new QueryClient(); // ✅ move outside component so it persists
 
@@ -35,7 +36,9 @@ function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <AppRouter />
+      <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
+        <AppRouter />
+      </ThemeProvider>
       {/* <ReactQueryDevtools initialIsOpen={false} position="top" /> */}
     </QueryClientProvider>
   );

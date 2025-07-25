@@ -1,5 +1,3 @@
-import { Settings } from "lucide-react";
-
 import { useQuery } from "@tanstack/react-query";
 import { getAllUsers } from "@/api/user";
 import ROUTES from "@/constants/routes";
@@ -8,6 +6,7 @@ import type { IUser } from "@/types/global";
 import useSidebarUsers from "@/stores/sidebarUsers";
 import { useEffect } from "react";
 import { formatShortTime } from "@/lib/dateTime";
+import { Settings } from "./components";
 import socket from "@/lib/socket";
 
 export const Sidebar = ({ typingUser }: { typingUser: string | null }) => {
@@ -157,7 +156,7 @@ export const Sidebar = ({ typingUser }: { typingUser: string | null }) => {
             {me?.name?.charAt(0)?.toUpperCase()}
           </div>
         )}
-        <Settings className="size-5 text-neutral-500 dark:text-neutral-300 hover:text-blue-600 dark:hover:text-blue-400 cursor-pointer" />
+        <Settings />
       </div>
     </div>
   );
